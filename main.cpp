@@ -12,6 +12,9 @@ int main(int argc, char* argv[])
     std::string filename = argv[1];
 
     Compiler compiler(filename);
-    std::cout << compiler.SYMBOLS << std::endl;
+    if (compiler.compile() == 0)
+        std::cout << "Compilation Successful" << std::endl;
+    else
+        std::cout << "Compilation Failed" << std::endl;
     return 0;
 }

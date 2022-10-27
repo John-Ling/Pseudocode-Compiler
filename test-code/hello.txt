@@ -1,0 +1,4 @@
+func main()
+    out("Hello World");
+    return 0;
+end
