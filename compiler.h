@@ -27,6 +27,7 @@ class Compiler
         std::string targetFile;
         int begin_lexing();
         void tokenize(std::string line);
+        void process_buffer(std::string buffer);
     public:
         Compiler(std::string filename);
         int compile();

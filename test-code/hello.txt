@@ -1,4 +1,4 @@
 func main()
-    out("Hello World");
+    out("Hello World\n");
     return 0;
 end
