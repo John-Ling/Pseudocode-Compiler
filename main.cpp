@@ -2,6 +2,14 @@
 
 #include "compiler.h"
 
+// TODO
+// Implement lexer 
+
+// Stages of Development
+// Lexer: Current
+// Parser: Not Done
+// Code Generation: Not Done
+
 int main(int argc, char* argv[])
 {
     if (argc != 2)

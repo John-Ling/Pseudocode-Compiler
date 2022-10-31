@@ -1,5 +1,10 @@
-struct token
+struct Token
 {
+    std::string name;
     std::string value;
-    std::string tokenType;
+    Token(std::string name, std::string value)
+    {
+        name = name;
+        value = value;
+    }
 };
