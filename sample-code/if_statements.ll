@@ -1,7 +1,7 @@
-string name = "John";
+string name = 'John';
 
-if name == "John"
+if name == 'John';
     out "Your name is John\n";
-else
+else;
     out "Your name is not John\n";
-end
+end;

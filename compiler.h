@@ -12,14 +12,14 @@
 class Compiler
 {    
     private:
-        const std::string SYMBOLS = "()*/+-,><[]="; // acceptable symbols in the language
         const std::unordered_map<std::string, std::string> TOKEN_TABLE = {
             {"while", "[WHILE]"}, {"out", "[OUTPUT]"}, {"in", "[INPUT]"}, {"if", "[IF]"}, {"else", "[ELSE]"},
             {"+", "[ADDITION]"}, {"-", "[SUBTRACTION]"}, {"*", "[MULTIPLICATION]"},
             {"/", "[DIVISION]"}, {"=", "[ASSIGNMENT]"}, {">", "[GREATER]"}, {"<", "[LESSER]"},
             {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"==", "[EQUALS]"}, {"!=", "[NOT_EQUALS]"},
             {"&&", "[AND]"}, {"||", "[OR]"}, {"!", "[NOT]"}, {"(", "[LBRACKET]"}, {")", "[RBRACKET]"},
-            {"[", "[LSQUARE]"}, {"]", "[RSQUARE]"}, {",", "[COMMA]"}, {";", "[SEMICOLON]"}, {"end", "[END]"}
+            {"[", "[LSQUARE]"}, {"]", "[RSQUARE]"}, {",", "[COMMA]"}, {";", "[SEMICOLON]"}, 
+            {"string", "[STRING]"}, {"integer", "[INTEGER]"}, {"boolean", "[BOOLEAN]"}, {"end", "[END]"}
         };
 
         std::vector<struct Token> tokens;

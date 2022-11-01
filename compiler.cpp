@@ -47,52 +47,40 @@ void Compiler::tokenize(std::string line)
 
     std::string buffer = "";
     std::string previousCharacter = "";
+
     bool specialCharacterFound = false;
+    int specialCharacterCount = 0;
     int lineLength = line.length();
     for (int i = 0; i < lineLength; i++)
     {   
         std::string character(1, line[i]);
         std::string doubleCharacter = previousCharacter + character; // form a possible double character (i.e == or >= or &&)    
-        std::cout << "Current character "  + character << std::endl;
-        std::cout << doubleCharacter << std::endl;
-        if (TOKEN_TABLE.count(doubleCharacter))
+        if (TOKEN_TABLE.count(doubleCharacter)) // if a valid double character keyword is found
         {
-            std::cout << "Found double character" << std::endl;
+            std::cout << "Double character " + doubleCharacter << std::endl;
             struct Token token(TOKEN_TABLE.at(doubleCharacter), doubleCharacter);
             tokens.push_back(token);
-            specialCharacterFound = true;
         }
-        else if (TOKEN_TABLE.count(character))
+        else if (TOKEN_TABLE.count(character)) // if a valid single character keyword is found
         {
-            std::cout << "Found single character" << std::endl;
+            std::cout << "Single character " + character << std::endl;
             std::string tokenValue = TOKEN_TABLE.at(character);
             struct Token token(tokenValue, character);
             tokens.push_back(token);
             specialCharacterFound = true;
+            specialCharacterCount++;
         }
-        else if (character == " " || specialCharacterFound || (i + 1 > lineLength)) // process buffer if delimiter character or special character is reached or process if nearing the end of line
+        else if (character == " " || (i + 1 > lineLength)) // process buffer if delimiter character is reached or if nearing the end of line
         {
-            // special characters take priority as delimiters over spaces
-
-            if (!specialCharacterFound)
+            // buffer containing known keywords like "output" or "func" will be automatically found by a table lookup
+            if (TOKEN_TABLE.count(buffer))
             {
-                // process contents of buffer
-                struct Token token("", "");
-                std::cout << buffer << std::endl;
-
-                if (TOKEN_TABLE.count(buffer))
-                {
-                    token.name = TOKEN_TABLE.at(buffer);
-                    token.value = buffer;
-                }
-                else
-                    token = determine_type(buffer);
+                struct Token token(TOKEN_TABLE.at(buffer), buffer);
                 tokens.push_back(token);
                 buffer = "";
             }
         }
 
-        specialCharacterFound = false;
         previousCharacter = character;
         buffer = buffer + character;
     }
@@ -112,11 +100,11 @@ struct Token Compiler::determine_type(std::string buffer)
     {
         // regex checks for data type checking
         if (buffer == "true" || buffer == "false")
-            token.name = "[BOOLEAN]";
+            token.name = "[BOOL_LITERAL]";
         else if (regex_search(buffer, REGEX_STRINGS))
-            token.name = "[STRING]";
+            token.name = "[STRING_LITERAL]";
         else if (regex_search(buffer, REGEX_INTEGERS))
-            token.name = "[INTEGER]";
+            token.name = "[INT_LITERAL]";
         else if (regex_search(buffer, REGEX_IDENTIFIERS))
             token.name = "[IDENTIFIER]";
     }

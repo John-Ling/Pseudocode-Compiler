@@ -1,7 +1,7 @@
-func add(integer a, integer b)
+func add(integer a, integer b);
     integer sum = a + b;
     return sum;
-end
+end;
 
 integer a = 2;
 integer b = 4;
