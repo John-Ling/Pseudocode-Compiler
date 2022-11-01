@@ -10,7 +10,6 @@ int Compiler::compile(void)
     int lexingProcess = begin_lexing();
     if (lexingProcess == 1) 
         return 1;
-    
     return 0;
 }
 
@@ -66,27 +65,31 @@ void Compiler::tokenize(std::string line)
         else if (TOKEN_TABLE.count(character))
         {
             std::cout << "Found single character" << std::endl;
-            struct Token token(TOKEN_TABLE.at(character), character);
-            std::cout << token.name << std::endl;
-            std::cout << token.value << std::endl;
+            std::string tokenValue = TOKEN_TABLE.at(character);
+            struct Token token(tokenValue, character);
             tokens.push_back(token);
             specialCharacterFound = true;
         }
         else if (character == " " || specialCharacterFound || (i + 1 > lineLength)) // process buffer if delimiter character or special character is reached or process if nearing the end of line
         {
-            // process contents of buffer
-            struct Token token("", "");
-            std::cout << buffer << std::endl;
+            // special characters take priority as delimiters over spaces
 
-            if (TOKEN_TABLE.count(buffer))
+            if (!specialCharacterFound)
             {
-                token.name = TOKEN_TABLE.at(buffer);
-                token.value = buffer;
+                // process contents of buffer
+                struct Token token("", "");
+                std::cout << buffer << std::endl;
+
+                if (TOKEN_TABLE.count(buffer))
+                {
+                    token.name = TOKEN_TABLE.at(buffer);
+                    token.value = buffer;
+                }
+                else
+                    token = determine_type(buffer);
+                tokens.push_back(token);
+                buffer = "";
             }
-            else
-                token = determine_type(buffer);
-            tokens.push_back(token);
-            buffer = "";
         }
 
         specialCharacterFound = false;

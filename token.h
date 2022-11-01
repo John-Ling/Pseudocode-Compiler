@@ -4,7 +4,7 @@ struct Token
     std::string value;
     Token(std::string name, std::string value)
     {
-        name = name;
-        value = value;
+        this->name = name;
+        this->value = value;
     }
 };
