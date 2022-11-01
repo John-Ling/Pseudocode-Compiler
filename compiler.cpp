@@ -1,5 +1,6 @@
 #include "compiler.h"
 // branch test
+// second branch test
 Compiler::Compiler(std::string filename)
 {
     targetFile = filename;
