@@ -1,1 +1,1 @@
-out 'Hello World\n';
+output 'Hello World\n';
