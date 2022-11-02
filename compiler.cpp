@@ -35,53 +35,57 @@ int Compiler::begin_lexing(void)
 void Compiler::tokenize(std::string line)
 {
     // tokenize a line from the target file and update the vector containing tokens
-
-    // outline of process
-    // repeat until end of line is reached
-    // ingest single character at line
-    // check if character + previous character is a valid keyword if so then add respective token
-    // else check if single character is a valid keyword
-    // if not check if current buffer is a valid keyword  add respective token if so then empty buffer
-    // store current character in variable for previous characters
-    // add current character to buffer
-
+    bool openedQuote = false;
     std::string buffer = "";
-    std::string previousCharacter = "";
 
-    bool specialCharacterFound = false;
-    int specialCharacterCount = 0;
-    int lineLength = line.length();
-    for (int i = 0; i < lineLength; i++)
-    {   
+    for (int i = 0; i < line.length(); i++)
+    {
         std::string character(1, line[i]);
-        std::string doubleCharacter = previousCharacter + character; // form a possible double character (i.e == or >= or &&)    
-        if (TOKEN_TABLE.count(doubleCharacter)) // if a valid double character keyword is found
+        if (character == "'" && openedQuote)
         {
-            std::cout << "Double character " + doubleCharacter << std::endl;
-            struct Token token(TOKEN_TABLE.at(doubleCharacter), doubleCharacter);
+            // generate string token
+            struct Token token("[STRING_LITERAL]", buffer);
             tokens.push_back(token);
+            buffer = "";
+            openedQuote = false;
         }
-        else if (TOKEN_TABLE.count(character)) // if a valid single character keyword is found
+        else if (character == "'")
+            openedQuote = true;
+
+        if (!openedQuote)
         {
-            std::cout << "Single character " + character << std::endl;
-            std::string tokenValue = TOKEN_TABLE.at(character);
-            struct Token token(tokenValue, character);
-            tokens.push_back(token);
-            specialCharacterFound = true;
-            specialCharacterCount++;
-        }
-        else if (character == " " || (i + 1 > lineLength)) // process buffer if delimiter character is reached or if nearing the end of line
-        {
-            // buffer containing known keywords like "output" or "func" will be automatically found by a table lookup
-            if (TOKEN_TABLE.count(buffer))
+            if (character == " " || TOKEN_TABLE.count(character))
             {
-                struct Token token(TOKEN_TABLE.at(buffer), buffer);
+                struct Token token("", "");
+                struct Token characterToken("", "");
+                bool characterFound = false;
+                token = determine_type(buffer);
+                if (TOKEN_TABLE.count(character))
+                {
+                    // lookahead
+                    if (!(i + 1 == line.length()))
+                    {
+                        std::string doubleCharacter = character + line[i];
+                        if (TOKEN_TABLE.count(doubleCharacter))
+                        {
+                            characterToken.name = TOKEN_TABLE.at(doubleCharacter);
+                            characterToken.value = doubleCharacter;
+                        }
+                    }
+                    else
+                    {
+                        characterToken.name = TOKEN_TABLE.at(character);
+                        characterToken.value = character;
+                    }
+                    characterFound = true;
+                }
+
                 tokens.push_back(token);
+                if (characterFound)
+                    tokens.push_back(characterToken);
                 buffer = "";
             }
         }
-
-        previousCharacter = character;
         buffer = buffer + character;
     }
 }
@@ -89,7 +93,7 @@ void Compiler::tokenize(std::string line)
 struct Token Compiler::determine_type(std::string buffer)
 {
     // further processing to determine 
-    const std::regex REGEX_STRINGS("^'.'$");
+    const std::regex REGEX_STRINGS("^'.*\n*'$");
     const std::regex REGEX_INTEGERS("^[0-9]*$");
     const std::regex REGEX_IDENTIFIERS("^(?![0-9]*$)[a-zA-Z0-9]+$");
     

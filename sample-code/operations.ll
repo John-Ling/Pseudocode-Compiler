@@ -2,9 +2,9 @@ integer a = 2;
 integer b = 6;
 integer c = a + b;
 
-out c;
+output c;
 c = (b - a);
-out c;
+output c;
 c = b * a;
 
 integer d = (a + b) * c - 54;

@@ -1,7 +1,7 @@
 string name = 'John';
 
-if name == 'John';
-    out "Your name is John\n";
+if (name == 'John');
+    output "Your name is John\n";
 else;
-    out "Your name is not John\n";
+    output "Your name is not John\n";
 end;

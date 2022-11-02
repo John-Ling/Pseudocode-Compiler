@@ -6,5 +6,5 @@ struct Token
     {
         this->name = name;
         this->value = value;
-    }
+}
 };

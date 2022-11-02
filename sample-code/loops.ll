@@ -1,4 +1,4 @@
-boolean flag = true;
+bool flag = true;
 integer index = 0;
 integer limit = 10;
 while (index < 10 && flag == true);
