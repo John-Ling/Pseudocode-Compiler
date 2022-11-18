@@ -1,16 +1,16 @@
-#ifndef Compiler_H
-#define Compiler_H
-#include <string>
-#include <regex>
-#include <vector>
+#ifndef Lexer_H
+#define Lexer_H
+
 #include <unordered_map>
+#include <vector>
 #include <fstream>
+#include <string>
 #include <iostream>
 
-#include "lexer.h"
+#include "token.h"
 
-class Compiler
-{    
+class Lexer
+{
     private:
         const std::unordered_map<std::string, std::string> TOKEN_TABLE = {
             {"while", "[WHILE]"}, {"output", "[OUTPUT]"}, {"input", "[INPUT]"}, {"if", "[IF]"}, {"else", "[ELSE]"},
@@ -20,14 +20,20 @@ class Compiler
             {"&&", "[AND]"}, {"||", "[OR]"}, {"!", "[NOT]"}, {"(", "[LBRACKET]"}, {")", "[RBRACKET]"},
             {"[", "[LSQUARE]"}, {"]", "[RSQUARE]"}, {",", "[COMMA]"}, {";", "[SEMICOLON]"}, 
             {"string", "[STRING]"}, {"integer", "[INTEGER]"}, {"bool", "[BOOLEAN]"}, {"end", "[END]"}
-        };
-
-        std::string targetFile;
-        int begin_lexing(void);
-        void tokenize(std::string line);
+        }; 
+        std::string sourceFile;
+        std::string currentLine;
+        int position;
+        
+        int lex(void);
+        void tokenize_line(std::string line);
+        void advance();
+        std::string get_integer_literal();
+        std::string get_string_literal();
     public:
-        Compiler(std::string filename);
-        int compile(void);
+        Lexer(std::string filename);
+        int generate_tokens(void);
+        std::vector<struct Token> tokens;
 };
 
 #endif
