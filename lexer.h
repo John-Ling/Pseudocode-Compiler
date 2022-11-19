@@ -12,15 +12,18 @@
 class Lexer
 {
     private:
-        const std::unordered_map<std::string, std::string> TOKEN_TABLE = {
+        const std::unordered_map<std::string, std::string> KEYWORDS_TO_TOKENS = {
             {"while", "[WHILE]"}, {"output", "[OUTPUT]"}, {"input", "[INPUT]"}, {"if", "[IF]"}, {"else", "[ELSE]"},
-            {"+", "[ADDITION]"}, {"-", "[SUBTRACTION]"}, {"*", "[MULTIPLICATION]"},
-            {"/", "[DIVISION]"}, {"=", "[ASSIGNMENT]"}, {">", "[GREATER]"}, {"<", "[LESSER]"},
             {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"==", "[EQUALS]"}, {"!=", "[NOT_EQUALS]"},
-            {"&&", "[AND]"}, {"||", "[OR]"}, {"!", "[NOT]"}, {"(", "[LBRACKET]"}, {")", "[RBRACKET]"},
-            {"[", "[LSQUARE]"}, {"]", "[RSQUARE]"}, {",", "[COMMA]"}, {";", "[SEMICOLON]"}, 
-            {"string", "[STRING]"}, {"integer", "[INTEGER]"}, {"bool", "[BOOLEAN]"}, {"end", "[END]"}
+            {"&&", "[AND]"}, {"||", "[OR]"}, {"string", "[STRING]"}, {"integer", "[INTEGER]"}, 
+            {"bool", "[BOOLEAN]"}, {"end", "[END]"}
         }; 
+        const std::unordered_map<char, std::string> SYMBOLS_TO_TOKENS {
+            {'+', "[ADDITION]"}, {'-', "[SUBTRACTION]"}, {'*', "[MULTIPLICATION]"},
+            {'/', "[DIVISION]"}, {'=', "[ASSIGNMENT]"}, {'>', "[GREATER]"}, {'<', "[LESSER]"},
+            {'!', "[NOT]"}, {'(', "[LBRACKET]"}, {')', "[RBRACKET]"},
+            {'[', "[LSQUARE]"}, {']', "[RSQUARE]"}, {',', "[COMMA]"}, {';', "[SEMICOLON]"}
+        };
         std::string sourceFile;
         std::string currentLine;
         int position;
@@ -28,6 +31,9 @@ class Lexer
         int lex(void);
         void tokenize_line(std::string line);
         void advance();
+        void lookahead();
+        void process_buffer(std::string buffer);
+        bool is_integer(char character);
         std::string get_integer_literal();
         std::string get_string_literal();
     public:

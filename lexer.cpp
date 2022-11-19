@@ -28,113 +28,125 @@ void Lexer::tokenize_line(std::string line)
     const int ASCII_9 = 57;
     this->currentLine = line;
     advance();
-    while (this->position != -1)
+    std::string buffer;
+    bool error = false;
+
+    while (this->position != -1) // read until end of line
     {
-        // match single characters
         char character = (this->currentLine)[this->position];
-        switch (character) // assign correct tokens
+        std::cout << character << std::endl;
+        if (this->SYMBOLS_TO_TOKENS.count(character)) // match single characters
         {
-            case ' ': // skip over whitespace
-                advance();
-                break;
-            
-            // simple single character tokens
-            case '+':
+            if (buffer != "")
             {
-                advance();
-                struct Token token("[ADDITION]", character);
-                this->tokens.push_back(token);
-                break;
+                process_buffer(buffer);
+                buffer = "";
             }
-            case '-':
+
+            if (character == '=' || character == '>' || character == '<' || character == '!')
             {
+                // lookahead to match double character operators
+                std::string tmp(character, 1);
                 advance();
-                struct Token token("[SUBTRACTION]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case '*':
-            {
-                advance();
-                struct Token token("[MULTIPLICATION]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case '/':
-            {
-                advance();
-                struct Token token("[DIVISION]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case '(':
-            {
-                advance();
-                struct Token token("[LBRACKET]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case ')':
-            {
-                advance();
-                struct Token token("[RBRACKET]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case '[':
-            {
-                advance();
-                struct Token token("[LSQUARE]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case ']':
-            {
-                advance();
-                struct Token token("[RSQUARE]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case ';':
-            {
-                advance();
-                struct Token token("[SEMICOLON]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            case ',':
-            {
-                advance();
-                struct Token token("[COMMA]", character);
-                this->tokens.push_back(token);
-                break;
-            }
-            default:
-            {
-                // keywords, literals or identifiers
-                if ((int)character >= ASCII_0 && (int)character <= ASCII_9) // integer literal
+                if (this->position != -1) // lookahead
                 {
-                    std::string value = get_integer_literal();
-                    struct Token token("[INTEGER_LITERAL]", value);
-                    this->tokens.push_back(token);
-                }
-                else if (character == '\'')
-                {
-                    std::string value = get_string_literal();
-                    struct Token token("[STRING_LITERAL]", value);
-                    this->tokens.push_back(token);
+                    tmp = tmp + (this->currentLine)[this->position];
+                    if (this->KEYWORDS_TO_TOKENS.count(tmp))
+                    {
+                        std::string type = this->KEYWORDS_TO_TOKENS.at(tmp);
+                        struct Token token(type, tmp);
+                        this->tokens.push_back(token);
+                    }
+                    else
+                    {
+                        // generate single character token
+                        std::string type = this->SYMBOLS_TO_TOKENS.at(character);
+                        struct Token token(type, character);
+                        this->tokens.push_back(token);
+                    }
                 }
                 else
                 {
-                    advance();
-                    struct Token token("[UNKNOWN]", character);
-                    this->tokens.push_back(token);
+                    error = true;   
                 }
-                break;
             }
-                
-        };
+            else
+            {
+                // create single character token
+                std::string type = this->SYMBOLS_TO_TOKENS.at(character);
+                struct Token token(type, character);
+                this->tokens.push_back(token);
+            }
+        }
+        else if (is_integer(character)) // lex integer literals
+        {
+            if (buffer != "")
+            {
+                process_buffer(buffer);
+                buffer = "";
+            }
+
+            std::string value = get_integer_literal();
+            struct Token token("[INTEGER_LITERAL]", value);
+            this->tokens.push_back(token);
+        }
+        else if (character == '\'') // lex string literals
+        {
+            if (buffer != "")
+            {
+                process_buffer(buffer);
+                buffer = "";
+            }
+            std::string value = get_string_literal();
+            struct Token token("[STRING_LITERAL]", value);
+            this->tokens.push_back(token);
+        }
+        else
+        {
+            if (character != ' ')
+            {
+                std::cout << "Adding character " << character << std::endl;
+                buffer = buffer + character;
+            }
+        }
+        advance();
     }
+
+    if (buffer != "")
+    {
+        process_buffer(buffer);
+        buffer = "";
+    }
+
+    return;
+}
+
+void Lexer::process_buffer(std::string buffer)
+{
+    std::string type;
+    for (int i = 0; i < buffer.length(); i++)
+    {
+        std::cout << "Char " << buffer[i] << std::endl;
+    }
+    // buffer processing for keywords
+    if (this->KEYWORDS_TO_TOKENS.count(buffer))
+        type = this->KEYWORDS_TO_TOKENS.at(buffer);
+    else
+        type = "[UNKNOWN]";
+
+    struct Token token(type, buffer);
+    this->tokens.push_back(token);
+    return;
+}
+
+bool Lexer::is_integer(char character)
+{
+    const int ASCII_0 = 48;
+    const int ASCII_9 = 57;
+    if ((int)character >= ASCII_0 && (int)character <= ASCII_9)
+        return true;
+    else
+        return false;
 }
 
 std::string Lexer::get_integer_literal()
@@ -143,12 +155,12 @@ std::string Lexer::get_integer_literal()
     const int ASCII_0 = 48;
     const int ASCII_9 = 57;
     std::string number;
-    char currentCharacter = (this->currentLine)[this->position];
-    while (((int)currentCharacter >= ASCII_0 && (int)currentCharacter <= ASCII_9) && this->position != -1)
+    char character = (this->currentLine)[this->position];
+    while (is_integer(character) && this->position != -1)
     {
-        number = number + currentCharacter;
+        number = number + character;
         advance();
-        currentCharacter = (this->currentLine)[this->position];
+        character = (this->currentLine)[this->position];
     }
     return number;
 }
@@ -169,7 +181,6 @@ std::string Lexer::get_string_literal()
         currentCharacter = (this->currentLine)[this->position];
     }
     stringLiteral = stringLiteral + currentCharacter;
-    advance();
     return stringLiteral;
 }
 
