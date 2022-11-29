@@ -12,4 +12,9 @@ struct Token
     this->type = type;
     this->value = value;
   }
+  Token()
+  {
+    this->type = "";
+    this->value = "";
+  }
 };

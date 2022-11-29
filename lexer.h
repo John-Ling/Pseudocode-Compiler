@@ -13,8 +13,9 @@ class Lexer
 {
     private:
         const std::unordered_map<std::string, std::string> KEYWORDS_TO_TOKENS = {
-            {"while", "[WHILE]"}, {"output", "[OUTPUT]"}, {"input", "[INPUT]"}, {"if", "[IF]"}, {"else", "[ELSE]"},
-            {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"==", "[EQUALS]"}, {"!=", "[NOT_EQUALS]"},
+            {"func", "[FUNC]"}, {"while", "[WHILE]"}, {"output", "[OUTPUT]"}, {"input", "[INPUT]"}, 
+            {"if", "[IF]"}, {"else", "[ELSE]"}, {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, 
+            {"==", "[EQUALS]"}, {"!=", "[NOT_EQUALS]"},
             {"&&", "[AND]"}, {"||", "[OR]"}, {"string", "[STRING]"}, {"integer", "[INTEGER]"}, 
             {"bool", "[BOOLEAN]"}, {"end", "[END]"}
         }; 
@@ -31,11 +32,15 @@ class Lexer
         int lex(void);
         void tokenize_line(std::string line);
         void advance();
-        void lookahead();
-        void process_buffer(std::string buffer);
+        struct Token lookahead(char character);
+        int process_buffer(std::string buffer);
+        void add_token(std::string value);
+        void add_token(char character);
         bool is_integer(char character);
-        std::string get_integer_literal();
-        std::string get_string_literal();
+        bool is_valid_letter(char character);
+        bool is_valid_identifier(std::string value);
+        struct Token get_integer_literal();
+        struct Token get_string_literal();
     public:
         Lexer(std::string filename);
         int generate_tokens(void);
