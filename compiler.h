@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "token.h"
+#include "lexer.h"
 
 class Compiler
 {    
@@ -22,11 +22,9 @@ class Compiler
             {"string", "[STRING]"}, {"integer", "[INTEGER]"}, {"bool", "[BOOLEAN]"}, {"end", "[END]"}
         };
 
-        std::vector<struct Token> tokens;
         std::string targetFile;
         int begin_lexing(void);
         void tokenize(std::string line);
-        struct Token determine_type(std::string buffer);
     public:
         Compiler(std::string filename);
         int compile(void);

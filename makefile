@@ -1,7 +1,7 @@
 CXX=g++
 CFLAGS=-I.
-DEPS = compiler.h token.h
-OBJ = main.o compiler.o
+DEPS = compiler.h token.h lexer.h
+OBJ = main.o compiler.o lexer.o
 
 %.o: %.c $(DEPS)
 	$(CXX) -c -o $@ $< $(CFLAGS)
