@@ -33,7 +33,7 @@ void Lexer::tokenize_line(std::string line)
     advance();
     std::string buffer;
     bool checkBuffer = false;
-    bool bufferOpen = true;
+    bool addCharacter = true;
 
     struct Token tokenA;
     struct Token tokenB;
@@ -46,7 +46,9 @@ void Lexer::tokenize_line(std::string line)
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             tokenA = lookahead(character); // perform lookahead before forming character token
+            std::cout << character << " is a valid symbol" << std::endl;
             checkBuffer = true;
+            addCharacter = false;
         }
         else if (is_integer(character))
         {
@@ -61,7 +63,7 @@ void Lexer::tokenize_line(std::string line)
             checkBuffer = true;
         }
 
-        if (checkBuffer)
+        if (checkBuffer && buffer != "")
         {
             std::cout << "Buffer: " << buffer << std::endl;
             if (this->KEYWORDS_TO_TOKENS.count(buffer)) // check if buffer is keyword
@@ -104,7 +106,7 @@ void Lexer::tokenize_line(std::string line)
             tokenA.value = "";
         }
 
-        if (character != WHITESPACE)
+        if (character != WHITESPACE && !this->SYMBOLS_TO_TOKENS.count(character)) // ignore symbols and whitespace
         {
             buffer = buffer + character;
         }
@@ -124,15 +126,15 @@ struct Token Lexer::lookahead(char character)
     {
         // lookahead to match double character operators
         std::string doubleOperator = {character};
-        advance();
-        if (this->position != -1) // lookahead
+        if (this->position + 1 != -1) // lookahead
         {
-            doubleOperator = doubleOperator + (this->currentLine)[this->position];
+            doubleOperator = doubleOperator + (this->currentLine)[this->position + 1];
             std::cout << doubleOperator << std::endl;
             if (this->KEYWORDS_TO_TOKENS.count(doubleOperator))
             {
                 token.type = this->KEYWORDS_TO_TOKENS.at(doubleOperator);
                 token.value = doubleOperator;
+                advance();
             }
             else
             {
@@ -161,11 +163,18 @@ bool Lexer::is_valid_identifier(std::string value)
 {
     const char WHITESPACE = ' ';
     bool valid = true;
-    for (int i = 0; i < value.length(); i++)
+    if (is_integer(value[0]))
     {
-        if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
+        valid = false;
+    }
+    else
+    {
+        for (int i = 0; i < value.length(); i++)
         {
-            valid = false;
+            if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
+            {
+                valid = false;
+            }
         }
     }
     return valid;
