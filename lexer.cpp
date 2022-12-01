@@ -39,9 +39,10 @@ void Lexer::tokenize_line(std::string line)
     struct Token tokenB;
     while (this->position != -1) // read until end of line
     {
+        // add characters into buffer
+        // each iteration check if buffer matches keywords and add tokens
         char character = (this->currentLine)[this->position];
         std::cout << "Inspecting character " << character << std::endl;
-
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             tokenA = lookahead(character); // perform lookahead before forming character token
@@ -50,21 +51,19 @@ void Lexer::tokenize_line(std::string line)
         else if (is_integer(character))
         {
             tokenA = get_integer_literal();
-            checkBuffer = true;
         }
         else if (character == '\'')
         {
             tokenA = get_string_literal();
-            checkBuffer = true;
         }
-        else if (character == WHITESPACE)
+        else if (character == WHITESPACE || character == '(' || character == ')')
         {
             checkBuffer = true;
         }
 
-        if (checkBuffer && buffer != "")
+        if (checkBuffer)
         {
-            std::cout << "Buffer: " <<buffer << std::endl;
+            std::cout << "Buffer: " << buffer << std::endl;
             if (this->KEYWORDS_TO_TOKENS.count(buffer)) // check if buffer is keyword
             {
                 std::cout << buffer << std::endl;
@@ -160,10 +159,11 @@ void Lexer::advance()
 
 bool Lexer::is_valid_identifier(std::string value)
 {
+    const char WHITESPACE = ' ';
     bool valid = true;
     for (int i = 0; i < value.length(); i++)
     {
-        if (!is_valid_letter(value[i]))
+        if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
         {
             valid = false;
         }
