@@ -33,7 +33,7 @@ void Lexer::tokenize_line(std::string line)
     advance();
     std::string buffer;
     bool checkBuffer = false;
-    bool addCharacter = true;
+    bool integerLiteral = false;
 
     struct Token tokenA;
     struct Token tokenB;
@@ -42,17 +42,15 @@ void Lexer::tokenize_line(std::string line)
         // add characters into buffer
         // each iteration check if buffer matches keywords and add tokens
         char character = (this->currentLine)[this->position];
-        std::cout << "Inspecting character " << character << std::endl;
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             tokenA = lookahead(character); // perform lookahead before forming character token
-            std::cout << character << " is a valid symbol" << std::endl;
             checkBuffer = true;
-            addCharacter = false;
         }
         else if (is_integer(character))
         {
-            tokenA = get_integer_literal();
+            tokenA = get_integer_literal(); // read up to the ending number of the integer literal
+            integerLiteral = true;
         }
         else if (character == '\'')
         {
@@ -65,10 +63,8 @@ void Lexer::tokenize_line(std::string line)
 
         if (checkBuffer && buffer != "")
         {
-            std::cout << "Buffer: " << buffer << std::endl;
             if (this->KEYWORDS_TO_TOKENS.count(buffer)) // check if buffer is keyword
             {
-                std::cout << buffer << std::endl;
                 // generate keyword token
                 std::string keywordToken =  this->KEYWORDS_TO_TOKENS.at(buffer);
                 tokenB.type = keywordToken;
@@ -81,13 +77,8 @@ void Lexer::tokenize_line(std::string line)
             }
             else if (is_valid_identifier(buffer)) // check if buffer is a valid identifier
             {
-                std::cout << buffer << " is a valid identifier" << std::endl;
                 tokenB.type = "[IDENTIFIER]";
                 tokenB.value = buffer;
-            }
-            else // generate invalid token and stop program
-            {
-                std::cout << "Invalid token" << std::endl;
             }
             buffer = "";
         }
@@ -121,31 +112,34 @@ struct Token Lexer::lookahead(char character)
     // "peeks" at the next character to take the valid maximal munch of a potential token
     // when given two token choices = and ==, == will be chosen as its the longest valid token
     // return generated token
-    struct Token token;
     if (character == '=' || character == '>' || character == '<' || character == '!')
     {
         // lookahead to match double character operators
         std::string doubleOperator = {character};
         if (this->position + 1 != -1) // lookahead
         {
-            doubleOperator = doubleOperator + (this->currentLine)[this->position + 1];
-            std::cout << doubleOperator << std::endl;
+            char nextLetter = (this->currentLine)[this->position + 1];
+            doubleOperator = doubleOperator + nextLetter;
+
             if (this->KEYWORDS_TO_TOKENS.count(doubleOperator))
             {
-                token.type = this->KEYWORDS_TO_TOKENS.at(doubleOperator);
-                token.value = doubleOperator;
+                struct Token token(this->KEYWORDS_TO_TOKENS.at(doubleOperator), doubleOperator);
                 advance();
+                return token;
             }
             else
             {
-                token.type = this->SYMBOLS_TO_TOKENS.at(character);
-                token.value = character;
+                struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+                return token;
             }
         }
     }
     else
-        token.type = this->SYMBOLS_TO_TOKENS.at(character);
-        token.value = character;
+    {
+        struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+        return token;
+    }
+    struct Token token; // code is here to stop g++ throwing a hissy fit you realistically cannot access it during runtime unless something has gone horribly wrong
     return token;
 }
 
@@ -162,22 +156,19 @@ void Lexer::advance()
 bool Lexer::is_valid_identifier(std::string value)
 {
     const char WHITESPACE = ' ';
-    bool valid = true;
+    
     if (is_integer(value[0]))
     {
-        valid = false;
+        return false;
     }
-    else
+    for (int i = 0; i < value.length(); i++)
     {
-        for (int i = 0; i < value.length(); i++)
+        if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
         {
-            if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
-            {
-                valid = false;
-            }
+            return false;
         }
     }
-    return valid;
+    return true;
 }
 
 struct Token Lexer::get_integer_literal()

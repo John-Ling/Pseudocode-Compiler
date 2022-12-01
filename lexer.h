@@ -15,7 +15,7 @@ class Lexer
         const std::unordered_map<std::string, std::string> KEYWORDS_TO_TOKENS = {
             {"func", "[FUNC]"}, {"while", "[WHILE]"}, {"output", "[OUTPUT]"}, {"input", "[INPUT]"}, 
             {"if", "[IF]"}, {"else", "[ELSE]"}, {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, 
-            {"==", "[EQUALS]"}, {"!=", "[NOT_EQUALS]"},
+            {"==", "[EQUAL]"}, {"!=", "[NOT_EQUAL]"},
             {"&&", "[AND]"}, {"||", "[OR]"}, {"string", "[STRING]"}, {"integer", "[INTEGER]"}, 
             {"bool", "[BOOLEAN]"}, {"end", "[END]"}
         }; 
