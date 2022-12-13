@@ -1,0 +1,17 @@
+DECLARE Flag : BOOLEAN
+DECLARE Index : INTEGER
+DECLARE Limit : INTEGER
+Limit <-- 10
+Flag <-- TRUE
+
+FOR Index <-- 0 TO Limit
+    OUTPUT Index
+NEXT
+
+Index <-- 0
+WHILE (Index < Limit AND Flag = TRUE)
+    IF (Index = 7) THEN
+        Flag = false
+    ENDIF
+    Index <-- Index + 1
+ENDWHILE

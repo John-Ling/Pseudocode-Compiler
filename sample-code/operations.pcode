@@ -1,0 +1,13 @@
+DECLARE A : INTEGER
+DECLARE B : INTEGER
+DECLARE C : INTEGER
+A <-- 2
+B <-- 6
+C <-- A + b
+
+OUTPUT C
+C = B * A
+
+DECLARE D : INTEGER
+D <-- (A + B) * C - 54
+OUTPUT D

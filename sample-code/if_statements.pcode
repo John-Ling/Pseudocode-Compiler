@@ -1,0 +1,8 @@
+DECLARE Name : STRING
+Name <-- "John"
+
+IF (Name = "John") THEN
+    OUTPUT "Your name is John"
+ELSE
+    OUTPUT "Your name is not John"
+ENDIF

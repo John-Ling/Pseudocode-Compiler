@@ -2,13 +2,15 @@
 
 #include "compiler.h"
 
+// This compiler will take the A Level Computer Science language "psuedocode" and translate to python then run the generated python file with the interpreter
+// Author: John Ling
+
 // TODO
 // Implement lexer 
 
 // Stages of Development
-// Lexer: Current
-// Parser: Not Done
-// Code Generation: Not Done
+// Lexer: Done
+// Parser: Current
 
 int main(int argc, char* argv[])
 {

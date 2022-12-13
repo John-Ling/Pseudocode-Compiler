@@ -15,7 +15,9 @@ int Lexer::generate_tokens(void)
     // open file 
     std::ifstream fileReader(sourceFile);
     if (!fileReader.is_open())
+    {
         return 1;
+    }
     
     while (fileReader)
     {
@@ -29,11 +31,11 @@ int Lexer::generate_tokens(void)
 void Lexer::tokenize_line(std::string line)
 {
     const char WHITESPACE = ' ';
+    const char NEWLINE = '\n';
     this->currentLine = line;
     advance();
     std::string buffer;
     bool checkBuffer = false;
-    bool integerLiteral = false;
 
     struct Token tokenA;
     struct Token tokenB;
@@ -49,15 +51,25 @@ void Lexer::tokenize_line(std::string line)
         }
         else if (is_integer(character))
         {
-            tokenA = get_integer_literal(); // read up to the ending number of the integer literal
-            integerLiteral = true;
+            tokenA = get_numerical_literal(); // read up to the ending number of the integer/float literal
         }
-        else if (character == '\'')
+        else if (character == '"')
         {
             tokenA = get_string_literal();
         }
-        else if (character == WHITESPACE || character == '(' || character == ')')
+        else if (character == WHITESPACE || this->position == this->currentLine.length()) // if encountered whitespace or end of line
         {
+            checkBuffer = true;
+        }
+        else if (this->position + 1 == (this->currentLine.length() - 1))
+        {
+            buffer = buffer + character;
+            advance();
+            if (this->position != -1)
+            {
+                character = (this->currentLine)[this->position];
+                buffer = buffer + character;
+            }
             checkBuffer = true;
         }
 
@@ -112,41 +124,37 @@ struct Token Lexer::lookahead(char character)
     // "peeks" at the next character to take the valid maximal munch of a potential token
     // when given two token choices = and ==, == will be chosen as its the longest valid token
     // return generated token
-    if (character == '=' || character == '>' || character == '<' || character == '!')
+    if (character == '>' || character == '<')
     {
         // lookahead to match double character operators
+        std::string largestOperator = {character};
         std::string doubleOperator = {character};
-        if (this->position + 1 != -1) // lookahead
-        {
-            char nextLetter = (this->currentLine)[this->position + 1];
-            doubleOperator = doubleOperator + nextLetter;
+        struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
 
-            if (this->KEYWORDS_TO_TOKENS.count(doubleOperator))
+        for (int i = 1; i <= 2; i++)
+        {
+            if (this->position + i < (this->currentLine).length())
             {
-                struct Token token(this->KEYWORDS_TO_TOKENS.at(doubleOperator), doubleOperator);
                 advance();
-                return token;
-            }
-            else
-            {
-                struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
-                return token;
+                char nextCharacter = (this->currentLine)[this->position];
+                largestOperator = largestOperator + nextCharacter;
+                if (this->KEYWORDS_TO_TOKENS.count(largestOperator))
+                {
+                    token.type = this->KEYWORDS_TO_TOKENS.at(largestOperator);
+                    token.value = largestOperator;
+                }
             }
         }
-    }
-    else
-    {
-        struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
         return token;
     }
-    struct Token token; // code is here to stop g++ throwing a hissy fit you realistically cannot access it during runtime unless something has gone horribly wrong
+    struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
     return token;
 }
 
 void Lexer::advance()
 {
     this->position = this->position + 1;
-    if (this->position == (this->currentLine).length()) // check if reached end of line
+    if (this->position >= (this->currentLine).length()) // check if reached end of line
     {
         this->position = -1;
     }
@@ -171,23 +179,25 @@ bool Lexer::is_valid_identifier(std::string value)
     return true;
 }
 
-struct Token Lexer::get_integer_literal()
+struct Token Lexer::get_numerical_literal()
 {
-    // form number by reading until non-integer character is reached
-    // read up to BEFORE the non-integer character
-    const int ASCII_0 = 48;
-    const int ASCII_9 = 57;
+    // get either a float or integer literal depending on the presence of a decimal point
+    std::string type = "[INTEGER_LITERAL]";
     std::string number;
     char character = (this->currentLine)[this->position];
-    while (is_integer(character) && this->position != -1)
+    while ((is_integer(character) || character == '.') && this->position != -1)
     {
+        if (character == '.')
+        {
+            type = "[FLOAT_LITERAL]";
+        }
         number = number + character;
         advance();
         character = (this->currentLine)[this->position];
     }
     this->position--;
 
-    struct Token token("[INTEGER_LITERAL]", number);
+    struct Token token(type, number);
     return token;
 }
 
@@ -199,7 +209,7 @@ struct Token Lexer::get_string_literal()
     stringLiteral = stringLiteral + character; // add initial quotation mark
     advance(); 
     character = (this->currentLine)[this->position];
-    while (character != '\'') // read until next quotation mark
+    while (character != '"') // read until next quotation mark
     {
         stringLiteral = stringLiteral + character;
         advance();
