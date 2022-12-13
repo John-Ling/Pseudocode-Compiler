@@ -82,7 +82,7 @@ void Lexer::tokenize_line(std::string line)
                 tokenB.type = keywordToken;
                 tokenB.value = buffer;
             }
-            else if (buffer == "true" || buffer == "false")
+            else if (buffer == "TRUE" || buffer == "FALSE")
             {
                 tokenB.type = "[BOOLEAN_LITERAL]";
                 tokenB.value = buffer;
