@@ -9,12 +9,12 @@ Compiler::Compiler(std::string filename)
 
 int Compiler::compile(void)
 {
+    // Lexing
     Lexer lexer(this->targetFile);
     int lexingProcess = lexer.generate_tokens();
-    for (int i = 0; i < lexer.tokens.size(); i++)
-    {
-        std::cout << (lexer.tokens[i]).type << " ";
-        std::cout << (lexer.tokens[i]).value << std::endl;
-    }
+
+    // Parsing
+    Parser parser(lexer.tokens);
+    
     return 0;
 }

@@ -12,7 +12,7 @@ class Parser
         std::vector<struct Token> tokenBuffer;
     
     public:
-
+        Parser(std::vector<struct Token> tokens);
 };
 
 #endif

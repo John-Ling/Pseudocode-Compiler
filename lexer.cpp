@@ -1,9 +1,5 @@
 #include "lexer.h"
 
-// TODO
-// implement checking for identifiers
-// accomodate cases such as string name where no symbol token is found after string therefore token "stringname" is generated
-
 Lexer::Lexer(std::string filename)
 {
     this->sourceFile = filename;
