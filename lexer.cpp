@@ -44,6 +44,15 @@ void Lexer::tokenize_line(std::string line)
         // add characters into buffer
         // each iteration check if buffer matches keywords and add tokens
         char character = (this->currentLine)[this->position];
+
+        // events that will trigger a buffer check
+        // specific single characters such as ( or , or <
+        // the start of a potential integer or float literal
+        // the start of a potential string literal
+        // character is a whitespace which acts as a delimiter
+        // end index is reached
+        // a buffer check is to discern the type of keyword being used or the name of an identifier
+        
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             tokenA = lookahead(character); // perform lookahead before forming character token
@@ -57,18 +66,18 @@ void Lexer::tokenize_line(std::string line)
         {
             tokenA = get_string_literal();
         }
-        else if (character == WHITESPACE || this->position == this->currentLine.length()) // if encountered whitespace or end of line
+        else if (character == WHITESPACE) // if encountered whitespace or end of line
         {
             checkBuffer = true;
         }
-        else if (this->position + 1 == (this->currentLine.length() - 1))
+        else if (this->position + 1 == (this->currentLine.length() - 1)) // when at the second to last character
         {
-            buffer = buffer + character;
-            advance();
-            if (this->position != -1)
+            // peek next character and determine if it is part of keyword/literal/identifier or is a symbol token
+            char peekedCharacter = (this->currentLine)[this->position + 1];
+            if (!this->SYMBOLS_TO_TOKENS.count(peekedCharacter))
             {
-                character = (this->currentLine)[this->position];
-                buffer = buffer + character;
+                buffer = buffer + character + peekedCharacter;
+                advance();
             }
             checkBuffer = true;
         }

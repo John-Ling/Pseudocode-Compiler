@@ -1,1 +1,2 @@
-OUTPUT 34242352345
+Sum <-- Add(A, B)
+OUTPUT Sum
