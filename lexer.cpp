@@ -37,8 +37,6 @@ void Lexer::tokenize_line(std::string line)
     struct Token tokenB;
     while (this->position != -1) // read until end of line
     {
-        // add characters into buffer
-        // each iteration check if buffer matches keywords and add tokens
         char character = (this->currentLine)[this->position];
 
         // events that will trigger a buffer check
@@ -48,7 +46,6 @@ void Lexer::tokenize_line(std::string line)
         // character is a whitespace which acts as a delimiter
         // end index is reached
         // a buffer check is to discern the type of keyword being used or the name of an identifier
-        
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             tokenA = lookahead(character); // perform lookahead before forming character token

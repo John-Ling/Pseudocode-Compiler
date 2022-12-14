@@ -26,8 +26,6 @@ class Lexer
         std::string sourceFile;
         std::string currentLine;
         int position;
-        
-        int lex(void);
         void tokenize_line(std::string line);
         void advance();
         struct Token lookahead(char character);
