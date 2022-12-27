@@ -29,6 +29,8 @@ void Lexer::tokenize_line(std::string line)
     const char WHITESPACE = ' ';
     this->currentLine = line;
     advance();
+
+    int maxIndex = line.length() - 1;
     std::string buffer;
     while (this->position != -1) // read until end of line
     {
@@ -67,13 +69,13 @@ void Lexer::tokenize_line(std::string line)
             check_buffer(buffer);
             buffer = "";
         }
-        else if (this->position + 1 == (this->currentLine.length() - 1)) // when at the second to last character
+        else if (this->position + 1 == maxIndex) // when at the second to last character
         {
             // peek next character and determine if it is part of keyword/literal/identifier or is a symbol token
-            char peekedCharacter = (this->currentLine)[this->position + 1];
-            if (!this->SYMBOLS_TO_TOKENS.count(peekedCharacter))
+            char nextCharacter = (this->currentLine)[this->position + 1];
+            if (!this->SYMBOLS_TO_TOKENS.count(nextCharacter))
             {
-                buffer = buffer + character + peekedCharacter;
+                buffer = buffer + character + nextCharacter;
                 advance();
             }
             check_buffer(buffer);
@@ -99,10 +101,15 @@ void Lexer::check_buffer(std::string buffer)
 
     if (buffer.length() == 1)
     {
-        char symbol = buffer[0];
-        if (this->SYMBOLS_TO_TOKENS.count(symbol))
+        char character = buffer[0];
+        if (this->SYMBOLS_TO_TOKENS.count(character))
         {
-            struct Token token = lookahead(symbol);
+            struct Token token = lookahead(character);
+            this->tokens.push_back(token);
+        }
+        else if (is_valid_letter(character))
+        {
+            struct Token token("[IDENTIFIER]", character);
             this->tokens.push_back(token);
         }
     }
