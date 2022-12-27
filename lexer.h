@@ -28,10 +28,8 @@ class Lexer
         int position;
         void tokenize_line(std::string line);
         void advance();
+        void check_buffer(std::string buffer);
         struct Token lookahead(char character);
-        int process_buffer(std::string buffer);
-        void add_token(std::string value);
-        void add_token(char character);
         bool is_integer(char character);
         bool is_valid_letter(char character);
         bool is_valid_identifier(std::string value);

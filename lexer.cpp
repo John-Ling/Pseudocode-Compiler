@@ -30,10 +30,6 @@ void Lexer::tokenize_line(std::string line)
     this->currentLine = line;
     advance();
     std::string buffer;
-    bool checkBuffer = false;
-
-    struct Token tokenA;
-    struct Token tokenB;
     while (this->position != -1) // read until end of line
     {
         char character = (this->currentLine)[this->position];
@@ -47,20 +43,29 @@ void Lexer::tokenize_line(std::string line)
         // a buffer check is to discern the type of keyword being used or the name of an identifier
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
-            tokenA = lookahead(character); // perform lookahead before forming character token
-            checkBuffer = true;
+            check_buffer(buffer);
+            buffer = "";
+            struct Token token = lookahead(character);
+            this->tokens.push_back(token);
         }
         else if (is_integer(character))
         {
-            tokenA = get_numerical_literal(); // read up to the ending number of the integer/float literal
+            check_buffer(buffer);
+            buffer = "";
+            struct Token token = get_numerical_literal();
+            this->tokens.push_back(token);
         }
         else if (character == '"')
         {
-            tokenA = get_string_literal();
+            check_buffer(buffer);
+            buffer = "";
+            struct Token token = get_string_literal();
+            this->tokens.push_back(token);
         }
         else if (character == WHITESPACE) // if encountered whitespace or end of line
         {
-            checkBuffer = true;
+            check_buffer(buffer);
+            buffer = "";
         }
         else if (this->position + 1 == (this->currentLine.length() - 1)) // when at the second to last character
         {
@@ -71,54 +76,54 @@ void Lexer::tokenize_line(std::string line)
                 buffer = buffer + character + peekedCharacter;
                 advance();
             }
-            checkBuffer = true;
-        }
-
-
-        if (checkBuffer && buffer != "")
-        {
-            if (this->KEYWORDS_TO_TOKENS.count(buffer)) // check if buffer is keyword
-            {
-                // generate keyword token
-                std::string keywordToken =  this->KEYWORDS_TO_TOKENS.at(buffer);
-                tokenB.type = keywordToken;
-                tokenB.value = buffer;
-            }
-            else if (buffer == "TRUE" || buffer == "FALSE")
-            {
-                tokenB.type = "[BOOLEAN_LITERAL]";
-                tokenB.value = buffer;
-            }
-            else if (is_valid_identifier(buffer)) // check if buffer is a valid identifier
-            {
-                tokenB.type = "[IDENTIFIER]";
-                tokenB.value = buffer;
-            }
+            check_buffer(buffer);
             buffer = "";
-        }
-        
-        if (tokenB.type != "")
-        {
-            this->tokens.push_back(tokenB);
-            tokenB.type = "";
-            tokenB.value = "";
-        }
-
-        if (tokenA.type != "")
-        {
-            this->tokens.push_back(tokenA);
-            tokenA.type = "";
-            tokenA.value = "";
         }
 
         if (character != WHITESPACE && !this->SYMBOLS_TO_TOKENS.count(character)) // ignore symbols and whitespace
         {
             buffer = buffer + character;
         }
-        checkBuffer = false;
         advance();
     }
     return;
+}
+
+void Lexer::check_buffer(std::string buffer)
+{
+    // check if buffer is a valid keyword or symbol then add that respective token if so
+    if (buffer == "")
+    {
+        return;
+    }
+
+    if (buffer.length() == 1)
+    {
+        char symbol = buffer[0];
+        if (this->SYMBOLS_TO_TOKENS.count(symbol))
+        {
+            struct Token token = lookahead(symbol);
+            this->tokens.push_back(token);
+        }
+    }
+    else
+    {
+        if (this->KEYWORDS_TO_TOKENS.count(buffer))
+        {
+            struct Token token(this->KEYWORDS_TO_TOKENS.at(buffer), buffer);
+            this->tokens.push_back(token);
+        }
+        else if (buffer == "TRUE" || buffer == "FALSE")
+        {
+            struct Token token("[BOOLEAN_LITERAL]", buffer);
+            this->tokens.push_back(token);
+        }
+        else if (is_valid_identifier(buffer))
+        {
+            struct Token token("[IDENTIFIER]", buffer);
+            this->tokens.push_back(token);
+        }
+    }
 }
 
 struct Token Lexer::lookahead(char character)
