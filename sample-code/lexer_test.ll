@@ -1,2 +1,1 @@
-Sum <-- Add(A, B)
-OUTPUT Sum
+OUTPUT 543 MOD 232

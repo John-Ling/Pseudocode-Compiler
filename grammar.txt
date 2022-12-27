@@ -1,5 +1,6 @@
-<program> ::= <statement> | <statement> <program>
-<statement> ::= <function> | <while> | <if> | <output> | <input> | <return> | <variableAssignment> | <Expression> | <End>
+<program> ::= <statement> | <statement> <end>
+<statement> ::= <function> | <while> | <if> | <output> | <input> | <return> | <variableAssignment> | <expression>
 <function> ::= [FUNC] [IDENTIFIER] ( <functionParameters>
-<functionParameters> ::= ) | [INTEGER] [IDENTIFIER] <functionParameters> | [STRING] [IDENTIFIER] <functionParameters> | [BOOLEAN] [IDENTIFIER] <functionParameters>
+<functionParameters> ::= ) | , <functionParameters> | [INTEGER] [IDENTIFIER] <functionParameters> | [STRING] [IDENTIFIER] <functionParameters> | [BOOLEAN] [IDENTIFIER] <functionParameters>
 <while> ::= [WHILE] ( <expression> )
+<end> ::= [END]

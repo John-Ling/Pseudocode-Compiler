@@ -10,6 +10,7 @@ class Parser
 {
     private:
         std::vector<struct Token> tokenBuffer;
+        int basic_parsing(void);
     public:
         Parser(std::vector<struct Token> tokens);
 };

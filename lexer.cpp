@@ -27,7 +27,6 @@ int Lexer::generate_tokens(void)
 void Lexer::tokenize_line(std::string line)
 {
     const char WHITESPACE = ' ';
-    const char NEWLINE = '\n';
     this->currentLine = line;
     advance();
     std::string buffer;
@@ -74,6 +73,7 @@ void Lexer::tokenize_line(std::string line)
             }
             checkBuffer = true;
         }
+
 
         if (checkBuffer && buffer != "")
         {
