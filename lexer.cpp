@@ -80,6 +80,8 @@ void Lexer::tokenize_line(std::string line)
             }
             check_buffer(buffer);
             buffer = "";
+            struct Token endToken("[EOL]", "END_OF_LINE");
+            this->tokens.push_back(endToken);
         }
 
         if (character != WHITESPACE && !this->SYMBOLS_TO_TOKENS.count(character)) // ignore symbols and whitespace
