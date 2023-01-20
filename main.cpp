@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 
 #include "compiler.h"
 
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        std::cout << "Run this command with a single file as an argument." << std::endl;
+        std::cout << "Run compiler with a file path as the only argument" << std::endl;
         return 1;
     }
     std::string filename = argv[1];

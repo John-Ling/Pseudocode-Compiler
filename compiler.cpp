@@ -14,7 +14,7 @@ int Compiler::compile(void)
     int lexingProcess = lexer.generate_tokens();
 
     // Parsing
-    Parser parser(lexer.tokens);
+    // Parser parser(lexer.tokens);
     
     return 0;
 }

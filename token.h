@@ -1,24 +1,25 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef Token_H
+#define Token_H
 
-struct Token
+typedef struct Token_t
 {
   std::string type;
   std::string value;
-  Token(std::string type, std::string value)
+  Token_t(std::string type, std::string value)
   {
     this->type = type;
     this->value = value;
   }
-  Token(std::string type, char value)
+  Token_t(std::string type, char value)
   {
     this->type = type;
     this->value = value;
   }
-  Token()
+  Token_t()
   {
     this->type = "";
     this->value = "";
   }
-};
+} Token;
+
 #endif

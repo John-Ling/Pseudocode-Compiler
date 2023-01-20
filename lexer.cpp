@@ -19,7 +19,15 @@ int Lexer::generate_tokens(void)
     {
         std::string line;
         std::getline(fileReader, line);
-        tokenize_line(line);
+        if (line != "")
+        {
+            tokenize_line(line);
+        }
+    }
+
+    for (int i = 0; i < this->tokens.size(); i++)
+    {
+        std::cout << this->tokens[i].type << " " << this->tokens[i].value << std::endl;
     }
     return 0;
 }
@@ -29,7 +37,6 @@ void Lexer::tokenize_line(std::string line)
     const char WHITESPACE = ' ';
     this->currentLine = line;
     advance();
-
     int maxIndex = line.length() - 1;
     std::string buffer;
     while (this->position != -1) // read until end of line
@@ -47,41 +54,27 @@ void Lexer::tokenize_line(std::string line)
         {
             check_buffer(buffer);
             buffer = "";
-            struct Token token = lookahead(character);
+            Token token = lookahead(character);
             this->tokens.push_back(token);
         }
         else if (is_integer(character))
         {
             check_buffer(buffer);
             buffer = "";
-            struct Token token = get_numerical_literal();
+            Token token = get_numerical_literal();
             this->tokens.push_back(token);
         }
         else if (character == '"')
         {
             check_buffer(buffer);
             buffer = "";
-            struct Token token = get_string_literal();
+            Token token = get_string_literal();
             this->tokens.push_back(token);
         }
         else if (character == WHITESPACE) // if encountered whitespace or end of line
         {
             check_buffer(buffer);
             buffer = "";
-        }
-        else if (this->position + 1 == maxIndex) // when at the second to last character
-        {
-            // peek next character and determine if it is part of keyword/literal/identifier or is a symbol token
-            char nextCharacter = (this->currentLine)[this->position + 1];
-            if (!this->SYMBOLS_TO_TOKENS.count(nextCharacter))
-            {
-                buffer = buffer + character + nextCharacter;
-                advance();
-            }
-            check_buffer(buffer);
-            buffer = "";
-            struct Token endToken("[EOL]", "END_OF_LINE");
-            this->tokens.push_back(endToken);
         }
 
         if (character != WHITESPACE && !this->SYMBOLS_TO_TOKENS.count(character)) // ignore symbols and whitespace
@@ -90,64 +83,56 @@ void Lexer::tokenize_line(std::string line)
         }
         advance();
     }
+    check_buffer(buffer);
+    Token endToken("[EOL]", "END_OF_LINE");
+    this->tokens.push_back(endToken);
     return;
 }
 
 void Lexer::check_buffer(std::string buffer)
 {
+    const std::string BOOLEAN_LITERAL = "[BOOLEAN_LITERAL]";
+    const std::string IDENTIFIER = "[IDENTIFIER]";
+
     // check if buffer is a valid keyword or symbol then add that respective token if so
     if (buffer == "")
     {
         return;
     }
 
-    if (buffer.length() == 1)
+    if (this->SYMBOLS_TO_TOKENS.count(buffer[0]))
     {
-        char character = buffer[0];
-        if (this->SYMBOLS_TO_TOKENS.count(character))
-        {
-            struct Token token = lookahead(character);
-            this->tokens.push_back(token);
-        }
-        else if (is_valid_letter(character))
-        {
-            struct Token token("[IDENTIFIER]", character);
-            this->tokens.push_back(token);
-        }
+        Token token = lookahead(buffer[0]);
+        this->tokens.push_back(token);
     }
-    else
+    else if (this->KEYWORDS_TO_TOKENS.count(buffer))
     {
-        if (this->KEYWORDS_TO_TOKENS.count(buffer))
-        {
-            struct Token token(this->KEYWORDS_TO_TOKENS.at(buffer), buffer);
-            this->tokens.push_back(token);
-        }
-        else if (buffer == "TRUE" || buffer == "FALSE")
-        {
-            struct Token token("[BOOLEAN_LITERAL]", buffer);
-            this->tokens.push_back(token);
-        }
-        else if (is_valid_identifier(buffer))
-        {
-            struct Token token("[IDENTIFIER]", buffer);
-            this->tokens.push_back(token);
-        }
+        Token token(this->KEYWORDS_TO_TOKENS.at(buffer), buffer);
+        this->tokens.push_back(token);
+    }
+    else if (buffer == "TRUE" || buffer == "FALSE")
+    {
+        Token token(BOOLEAN_LITERAL, buffer);
+        this->tokens.push_back(token);
+    }
+    else if (is_valid_identifier(buffer))
+    {
+        Token token(IDENTIFIER, buffer);
+        this->tokens.push_back(token);
     }
 }
 
-struct Token Lexer::lookahead(char character)
+Token Lexer::lookahead(char character)
 {
-    // "peeks" at the next character to take the valid maximal munch of a potential token
-    // when given two token choices = and ==, == will be chosen as its the longest valid token
+    // "peeks" at the next two character to take the valid maximal munch of a potential token
+    // when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
     // return generated token
-    if (character == '>' || character == '<')
+    if (character == '>' || character == '<') // in psuedocode there are only two characters with double or triple operators
     {
-        // lookahead to match double character operators
         std::string largestOperator = {character};
-        std::string doubleOperator = {character};
-        struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+        Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
 
-        for (int i = 1; i <= 2; i++)
+        for (int i = 1; i <= 2; i++) // look two steps ahead to match double or triple letter operators
         {
             if (this->position + i < (this->currentLine).length())
             {
@@ -163,13 +148,13 @@ struct Token Lexer::lookahead(char character)
         }
         return token;
     }
-    struct Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+    Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
     return token;
 }
 
 void Lexer::advance()
 {
-    this->position = this->position + 1;
+    this->position++;
     if (this->position >= (this->currentLine).length()) // check if reached end of line
     {
         this->position = -1;
@@ -195,30 +180,33 @@ bool Lexer::is_valid_identifier(std::string value)
     return true;
 }
 
-struct Token Lexer::get_numerical_literal()
+Token Lexer::get_numerical_literal()
 {
     // get either a float or integer literal depending on the presence of a decimal point
-    std::string type = "[INTEGER_LITERAL]";
+    const std::string INTEGER_LITERAL = "[INTEGER_LITERAL]";
+    const std::string FLOAT_LITERAL = "[FLOAT_LITERAL]";
+
+    std::string type = INTEGER_LITERAL;
     std::string number;
     char character = (this->currentLine)[this->position];
     while ((is_integer(character) || character == '.') && this->position != -1)
     {
         if (character == '.')
         {
-            type = "[FLOAT_LITERAL]";
+            type = FLOAT_LITERAL;
         }
         number = number + character;
         advance();
         character = (this->currentLine)[this->position];
     }
     this->position--;
-
-    struct Token token(type, number);
+    Token token(type, number);
     return token;
 }
 
-struct Token Lexer::get_string_literal()
+Token Lexer::get_string_literal()
 {
+    const std::string STRING_LITERAL = "[STRING_LITERAL]";
     // read up to ending character ) and create a string literal
     char character = (this->currentLine)[this->position];
     std::string stringLiteral;
@@ -232,7 +220,7 @@ struct Token Lexer::get_string_literal()
         character = (this->currentLine)[this->position];
     }
     stringLiteral = stringLiteral + character; // add closing quotation mark
-    struct Token token("[STRING_LITERAL]", stringLiteral);
+    Token token(STRING_LITERAL, stringLiteral);
     return token;
 }
 

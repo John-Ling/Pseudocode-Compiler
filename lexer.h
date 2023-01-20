@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <iostream>
 
 #include "token.h"
 
@@ -15,7 +16,7 @@ class Lexer
             {"FUNCTION", "[FUNCTION]"}, {"WHILE", "[WHILE]"}, {"OUTPUT", "[OUTPUT]"}, {"INPUT", "[INPUT]"}, {"<--", "[ASSIGNMENT]"},
             {"IF", "[IF]"}, {"ELSE", "[ELSE]"}, {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"<>", "[NOT_EQUAL]"},
             {"AND", "[AND]"}, {"OR", "[OR]"}, {"STRING", "[STRING]"}, {"INTEGER", "[INTEGER]"}, {"REAL", "[FLOAT]"}, {"MOD", "[MODULUS]"},
-            {"DECLARE", "[DECLARE]"}, {"NOT", "[NOT]"}, {"bool", "[BOOLEAN]"}, {"ENDFUNCTION", "[ENDFUNCTION]"}, {"ENDWHILE", "[ENDWHILE]"},
+            {"DECLARE", "[DECLARE]"}, {"NOT", "[NOT]"}, {"BOOLEAN", "[BOOLEAN]"}, {"ENDFUNCTION", "[ENDFUNCTION]"}, {"ENDWHILE", "[ENDWHILE]"},
             {"ENDIF", "[ENDIF]"}, {"THEN", "[THEN]"}, {"RETURNS", "[RETURNS]"}, {"RETURN", "[RETURN]"}
         }; 
         const std::unordered_map<char, std::string> SYMBOLS_TO_TOKENS {
@@ -29,16 +30,16 @@ class Lexer
         void tokenize_line(std::string line);
         void advance();
         void check_buffer(std::string buffer);
-        struct Token lookahead(char character);
+        Token lookahead(char character);
         bool is_integer(char character);
         bool is_valid_letter(char character);
         bool is_valid_identifier(std::string value);
-        struct Token get_string_literal();
-        struct Token get_numerical_literal();
+        Token get_string_literal();
+        Token get_numerical_literal();
     public:
         Lexer(std::string filename);
         int generate_tokens(void);
-        std::vector<struct Token> tokens;
+        std::vector<Token> tokens;
 };
 
 #endif

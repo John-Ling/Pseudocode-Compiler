@@ -6,3 +6,10 @@ IF (Name = "John") THEN
 ELSE
     OUTPUT "Your name is not John"
 ENDIF
+
+DECLARE Number : INTEGER
+Number <-- 433242
+
+IF (Number >= 324) THEN
+    OUTPUT "Number is larger than 324"
+ENDIF
