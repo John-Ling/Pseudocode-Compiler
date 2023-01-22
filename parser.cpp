@@ -3,113 +3,253 @@
 Parser::Parser(std::vector<Token> tokens)
 {
     this->tokens = tokens;
-    this->tokenPointer = 0;
+    this->pointer = 0;
 }
 
 int Parser::parse_tokens(void)
 {
-    for (int i = 0; i < this->tokens.size(); i++)
-    {
-        if (this->tokens[i].type != "[EOL]")
-        {
-            this->currentLine.push_back(this->tokens[i]);
-        }
-        else
-        {
-            parse_line(this->currentLine);
-            this->currentLine.clear();
-        }
-    }
+    while (this->pointer < this->tokens.size())
+	{
+		std::cout << "Looking at token " << this->tokens[this->pointer].type << std::endl;
+		int result = statement(); // parse token pointed to by this->pointer
+		if (result == 1)
+		{
+			std::cout << "Failed" << std::endl;
+			return 1;
+		}
+		else
+		{
+			this->pointer++;
+		}
+	}
     return 0;
 }
 
-void Parser::parse_line(std::vector<Token> buffer)
+int Parser::statement(void)
 {
-    int status = statement(buffer[this->tokenPointer]); // attempt to parse line 
-    return;
+	int result = 1;
+	std::cout << this->tokens[this->pointer].type << std::endl;
+    if (this->tokens[this->pointer].type == "[OUTPUT]")
+    {
+		std::cout << "Going to function OUTPUT" << std::endl;
+		result = output();
+	}
+	else if (this->tokens[this->pointer].type == "[FUNCTION]")
+	{
+		std::cout << "Function" << std::endl;
+		this->pointer++;
+		result = function();
+	}
+	else if (this->tokens[this->pointer].type == "[DECLARE]")
+	{
+		std::cout << "Declare" << std::endl;
+		this->pointer++;
+		result = variable_declaration();
+
+	}
+	return result;
 }
 
-void Parser::advance(void)
+int Parser::output(void)
 {
-    if (this->tokenPointer + 1 <= (this->currentLine.size() - 1))
-    {
-        this->tokenPointer++;
-    }
-    else
-    {
-        this->tokenPointer = -1;
-    }
-    return;
+	// <output> ::= [OUTPUT] <expression>
+	if (this->tokens[pointer].type == "[OUTPUT]" && expression(pointer + 1) == 0)
+	{
+		return 0;
+	}
+    return 1;
 }
 
-int Parser::statement(int pointer)
+int Parser::function(void)
 {
-    Token token = this->currentLine[pointer];
-    if (token.type == "[FUNCTION]")
-    {
-        function(pointer);
-    }
-    else if (token.type == "[WHILE]")
-    {
-        while_(token);
-    }
-    else if (token.type == "[OUTPUT]")
-    {
-
-    }
+	// <function> ::= [FUNCTION] [IDENTIFIER] ( <function-parameter> [RETURNS] <primitive-type> <statement> [ENDFUNCTION]
+	std::cout << this->tokens[this->pointer].type << std::endl;
+	if (this->tokens[this->pointer].type != "[IDENTIFIER]")
+	{
+		return 1;
+	}
+	this->pointer++;
+	std::cout << this->tokens[this->pointer].type << std::endl;
+	if (this->tokens[this->pointer].type != "[LBRACKET]")
+	{
+		return 1;
+	}
+	this->pointer++;
+	if (this->tokens[this->pointer].type == "[RBRACKET]") // function without parameters
+	{
+		std::cout << "Checking potential empty function" << std::endl;
+		this->pointer++;
+		if (this->tokens[this->pointer].type != "[RETURNS]")
+		{
+			return 1;
+		}
+		this->pointer++;
+		if (primitive_type() == 1)
+		{
+			return 1;
+		}
+		std::cout << "Valid empty function" << std::endl;
+		return 0; 
+	}
+	else
+	{
+		std::cout << "Checking function parameters" << std::endl;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (this->tokens[this->pointer].type != "[IDENTIFIER]")
+		{
+			return 1;
+		}
+		this->pointer++;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (this->tokens[this->pointer].type != "[COLON]")
+		{
+			return 1;
+		}
+		this->pointer++;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (primitive_type() == 1)
+		{
+			return 1;
+		}
+		this->pointer++;
+		if (function_parameter() == 1)
+		{
+			return 1;
+		}
+	}
+	this->pointer++;
+	if (this->tokens[this->pointer].type != "[RETURNS]")
+	{
+		return 1;
+	}
+	this->pointer++;
+	if (primitive_type() == 1)
+	{
+		return 1;
+	}
+	std::cout << "Valid function" << std::endl;
+	return 0;
 }
 
-int Parser::function(int pointer)
+int Parser::function_parameter(void)
 {
-    
-    return 0;
+	// <function-parameter> ::= ) | , [IDENTIFIER] : <primitive-literal> <function-parameter>
+	std::cout << this->tokens[this->pointer].type << std::endl;
+	if (this->tokens[this->pointer].type == "[RBRACKET]")
+	{
+		std::cout << "reached end" << std::endl;
+		return 0;
+	}
+	else if (this->tokens[this->pointer].type == "[COMMA]")
+	{
+		this->pointer++;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (this->tokens[this->pointer].type != "[IDENTIFIER]")
+		{
+			return 1;
+		}
+		this->pointer++;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (this->tokens[this->pointer].type != "[COLON]")
+		{
+			return 1;
+		}
+		this->pointer++;
+		std::cout << this->tokens[this->pointer].type << std::endl;
+		if (primitive_type() == 1)
+		{
+			std::cout << "Failed literal test in function_parameter()" << std::endl;
+			return 1;
+		}
+		this->pointer++;
+		return function_parameter(); // recursively check if there are any more valid arguments and return the correct status integer
+	}
+	std::cout << "Reached here" << std::endl;
+	return 1;
 }
 
-int Parser::output(int pointer)
+int Parser::variable_declaration(void)
 {
-
-    return 0;
+	// <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
+	if (this->tokens[this->pointer].type != "[IDENTIFIER]")
+	{
+		return 1;
+	}
+	this->pointer++;
+	if (this->tokens[this->pointer].type != "[COLON]")
+	{
+		return 1;
+	}
+	this->pointer++;
+	if (primitive_type() == 1)
+	{
+		return 1;
+	}
+	std::cout << "valid declaration" << std::endl;
+	return 0;
 }
 
 int Parser::expression(int pointer)
 {
-    if (primitive_literals(pointer) == 0 || binary_expression(pointer) == 0)
-    return 0;
+	// <expression> ::= 
+	std::cout << this->tokens[pointer].type << std::endl;
+    if (binary_expression(pointer) == 0)
+	{
+		std::cout << "expression is " << this->tokens[pointer].value << std::endl;
+		return 0;
+	}
+	if (primitive_literal() == 0)
+	{
+		std::cout << "Primitive literal" << std::endl;
+		return 0;
+	}
+	return 1;
 }
 
-int Parser::primitive_literals(int pointer)
+int Parser::primitive_literal(void)
 {
-    if (this->currentLine[pointer].type == "[INTEGER_LITERAL]" ||
-        this->currentLine[pointer].type == "[FLOAT_LITERAL]" ||
-        this->currentLine[pointer].type == "[STRING_LITERAL]" || 
-        this->currentLine[pointer].type == "[BOOLEAN_LITERAL]")
+    if (this->tokens[this->pointer].type == "[INTEGER_LITERAL]" ||
+        this->tokens[this->pointer].type == "[FLOAT_LITERAL]" ||
+        this->tokens[this->pointer].type == "[STRING_LITERAL]" || 
+        this->tokens[this->pointer].type == "[BOOLEAN_LITERAL]")
     {
+		std::cout << "Found literal" << std::endl;
         return 0;        
     }
     return 1;
 }
 
+int Parser::primitive_type(void)
+{
+	if (this->tokens[this->pointer].type == "[INTEGER]" ||
+		this->tokens[this->pointer].type == "[STRING]" || 
+		this->tokens[this->pointer].type == "[BOOLEAN]" || 
+		this->tokens[this->pointer].type == "[FLOAT]")
+	{
+		return 0;
+	}
+	return 1;
+}
+
 int Parser::operator_(int pointer)
 {
-    if (this->currentLine[pointer].type == "[ADDITION]" || 
-        this->currentLine[pointer].type == "[SUBTRACTION]" ||
-        this->currentLine[pointer].type == "[MULTIPLICATION]" ||
-        this->currentLine[pointer].type == "[DIVISION]" || 
-        this->currentLine[pointer].type == "[MODULUS]")
+    if (this->tokens[pointer].type == "[ADDITION]" || 
+        this->tokens[pointer].type == "[SUBTRACTION]" ||
+        this->tokens[pointer].type == "[MULTIPLICATION]" ||
+        this->tokens[pointer].type == "[DIVISION]" || 
+        this->tokens[pointer].type == "[MODULUS]")
     {
+		std::cout << "This is an operator" << std::endl;
         return 0;
     }
     return 1;
 }
 
-int while_(Token token)
-{
-    return 0;
-}
-
 int Parser::binary_expression(int pointer)
 {
-    if (expression(pointer) == 0 && operator_(pointer + 1) == 0 && expression(pointer + 2) == 0)
+	// binary expression ::= <expression> <operator> <expression>
+	std::cout << "Binary expression" << std::endl; 
+    if ((pointer + 2 < this->tokens.size()) && operator_(pointer + 1) == 0 && expression(pointer + 2) == 0)
     {
         return 0;
     }
@@ -118,7 +258,7 @@ int Parser::binary_expression(int pointer)
 
 int Parser::unary_expression(int pointer)
 {
-    if (this->currentLine[pointer].type == "[NOT]" || this->currentLine[pointer].type ==  && expression(pointer + 1) == 0)
+    if ((this->tokens[pointer].type == "[NOT]" || this->tokens[pointer].type == "[SUBTRACTION]") && expression(pointer + 1) == 0)
     {
         return 0;
     }

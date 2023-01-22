@@ -34,6 +34,9 @@ int Lexer::generate_tokens(void)
 
 void Lexer::tokenize_line(std::string line)
 {
+	// add characters to a buffer and examine them once a delimiter is reached
+	// reaching a quotation mark " or integer will trigger functions that take over regular operation and form the integer 
+	// or string rather than adding to buffer
     const char WHITESPACE = ' ';
     this->currentLine = line;
     advance();
@@ -41,15 +44,15 @@ void Lexer::tokenize_line(std::string line)
     std::string buffer;
     while (this->position != -1) // read until end of line
     {
-        char character = (this->currentLine)[this->position];
+        char character = this->currentLine[this->position];
 
-        // events that will trigger a buffer check
+        // example delimiters
         // specific single characters such as ( or , or <
         // the start of a potential integer or float literal
         // the start of a potential string literal
         // character is a whitespace which acts as a delimiter
-        // end index is reached
         // a buffer check is to discern the type of keyword being used or the name of an identifier
+
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
             check_buffer(buffer);
@@ -84,8 +87,6 @@ void Lexer::tokenize_line(std::string line)
         advance();
     }
     check_buffer(buffer);
-    Token endToken("[EOL]", "END_OF_LINE");
-    this->tokens.push_back(endToken);
     return;
 }
 
@@ -134,10 +135,10 @@ Token Lexer::lookahead(char character)
 
         for (int i = 1; i <= 2; i++) // look two steps ahead to match double or triple letter operators
         {
-            if (this->position + i < (this->currentLine).length())
+            if (this->position + i < this->currentLine.length())
             {
                 advance();
-                char nextCharacter = (this->currentLine)[this->position];
+                char nextCharacter = this->currentLine[this->position];
                 largestOperator = largestOperator + nextCharacter;
                 if (this->KEYWORDS_TO_TOKENS.count(largestOperator))
                 {
@@ -155,7 +156,7 @@ Token Lexer::lookahead(char character)
 void Lexer::advance()
 {
     this->position++;
-    if (this->position >= (this->currentLine).length()) // check if reached end of line
+    if (this->position >= this->currentLine.length()) // check if reached end of line
     {
         this->position = -1;
     }
@@ -188,7 +189,7 @@ Token Lexer::get_numerical_literal()
 
     std::string type = INTEGER_LITERAL;
     std::string number;
-    char character = (this->currentLine)[this->position];
+    char character = this->currentLine[this->position];
     while ((is_integer(character) || character == '.') && this->position != -1)
     {
         if (character == '.')
@@ -197,7 +198,7 @@ Token Lexer::get_numerical_literal()
         }
         number = number + character;
         advance();
-        character = (this->currentLine)[this->position];
+        character = this->currentLine[this->position];
     }
     this->position--;
     Token token(type, number);
@@ -208,16 +209,16 @@ Token Lexer::get_string_literal()
 {
     const std::string STRING_LITERAL = "[STRING_LITERAL]";
     // read up to ending character ) and create a string literal
-    char character = (this->currentLine)[this->position];
+    char character = this->currentLine[this->position];
     std::string stringLiteral;
     stringLiteral = stringLiteral + character; // add initial quotation mark
     advance(); 
-    character = (this->currentLine)[this->position];
+    character = this->currentLine[this->position];
     while (character != '"') // read until next quotation mark
     {
         stringLiteral = stringLiteral + character;
         advance();
-        character = (this->currentLine)[this->position];
+        character = this->currentLine[this->position];
     }
     stringLiteral = stringLiteral + character; // add closing quotation mark
     Token token(STRING_LITERAL, stringLiteral);

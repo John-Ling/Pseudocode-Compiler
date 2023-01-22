@@ -14,10 +14,10 @@ class Lexer
     private:
         const std::unordered_map<std::string, std::string> KEYWORDS_TO_TOKENS = {
             {"FUNCTION", "[FUNCTION]"}, {"WHILE", "[WHILE]"}, {"OUTPUT", "[OUTPUT]"}, {"INPUT", "[INPUT]"}, {"<--", "[ASSIGNMENT]"},
-            {"IF", "[IF]"}, {"ELSE", "[ELSE]"}, {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"<>", "[NOT_EQUAL]"},
+            {"IF", "[IF]"}, {"ELSE", "[ELSE]"}, {">=", "[GREATER_EQUAL]"}, {"<=", "[LESSER_EQUAL]"}, {"<>", "[NOT_EQUAL]"}, {"FOR", "[FOR]"},
             {"AND", "[AND]"}, {"OR", "[OR]"}, {"STRING", "[STRING]"}, {"INTEGER", "[INTEGER]"}, {"REAL", "[FLOAT]"}, {"MOD", "[MODULUS]"},
             {"DECLARE", "[DECLARE]"}, {"NOT", "[NOT]"}, {"BOOLEAN", "[BOOLEAN]"}, {"ENDFUNCTION", "[ENDFUNCTION]"}, {"ENDWHILE", "[ENDWHILE]"},
-            {"ENDIF", "[ENDIF]"}, {"THEN", "[THEN]"}, {"RETURNS", "[RETURNS]"}, {"RETURN", "[RETURN]"}
+            {"ENDIF", "[ENDIF]"}, {"THEN", "[THEN]"}, {"RETURNS", "[RETURNS]"}, {"RETURN", "[RETURN]"}, {"NEXT", "[NEXT]"}
         }; 
         const std::unordered_map<char, std::string> SYMBOLS_TO_TOKENS {
             {'+', "[ADDITION]"}, {'-', "[SUBTRACTION]"}, {'*', "[MULTIPLICATION]"}, {'=', "[EQUAL]"},
