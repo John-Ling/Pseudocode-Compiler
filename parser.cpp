@@ -47,6 +47,12 @@ int Parser::statement(void)
 		result = variable_declaration();
 
 	}
+	else if (this->tokens[this->pointer].type == "[INPUT]")
+	{
+		std::cout << "Input" << std::endl;
+		this->pointer++;
+		result = input();
+	}
 	return result;
 }
 
@@ -58,6 +64,16 @@ int Parser::output(void)
 		return 0;
 	}
     return 1;
+}
+
+int Parser::input(void)
+{
+	// <input> ::= [INPUT] [IDENTIFIER] <statement>
+	if (this->tokens[this->pointer].type == "[IDENTIFIER]")
+	{
+		return 0;
+	}
+	return 1;
 }
 
 int Parser::function(void)
@@ -193,8 +209,9 @@ int Parser::expression(int pointer)
 {
 	// <expression> ::= 
 	std::cout << this->tokens[pointer].type << std::endl;
-    if (binary_expression(pointer) == 0)
+    if (primitive_literal() == 0)
 	{
+		this->pointer++;
 		std::cout << "expression is " << this->tokens[pointer].value << std::endl;
 		return 0;
 	}
@@ -209,11 +226,10 @@ int Parser::expression(int pointer)
 int Parser::primitive_literal(void)
 {
     if (this->tokens[this->pointer].type == "[INTEGER_LITERAL]" ||
-        this->tokens[this->pointer].type == "[FLOAT_LITERAL]" ||
-        this->tokens[this->pointer].type == "[STRING_LITERAL]" || 
+        this->tokens[this->pointer].type == "[FLOAT_LITERAL]"   ||
+        this->tokens[this->pointer].type == "[STRING_LITERAL]"  || 
         this->tokens[this->pointer].type == "[BOOLEAN_LITERAL]")
     {
-		std::cout << "Found literal" << std::endl;
         return 0;        
     }
     return 1;
@@ -222,7 +238,7 @@ int Parser::primitive_literal(void)
 int Parser::primitive_type(void)
 {
 	if (this->tokens[this->pointer].type == "[INTEGER]" ||
-		this->tokens[this->pointer].type == "[STRING]" || 
+		this->tokens[this->pointer].type == "[STRING]"  || 
 		this->tokens[this->pointer].type == "[BOOLEAN]" || 
 		this->tokens[this->pointer].type == "[FLOAT]")
 	{
@@ -233,10 +249,10 @@ int Parser::primitive_type(void)
 
 int Parser::operator_(int pointer)
 {
-    if (this->tokens[pointer].type == "[ADDITION]" || 
-        this->tokens[pointer].type == "[SUBTRACTION]" ||
+    if (this->tokens[pointer].type == "[ADDITION]"       || 
+        this->tokens[pointer].type == "[SUBTRACTION]"    ||
         this->tokens[pointer].type == "[MULTIPLICATION]" ||
-        this->tokens[pointer].type == "[DIVISION]" || 
+        this->tokens[pointer].type == "[DIVISION]"       || 
         this->tokens[pointer].type == "[MODULUS]")
     {
 		std::cout << "This is an operator" << std::endl;

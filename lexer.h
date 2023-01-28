@@ -28,14 +28,16 @@ class Lexer
         std::string currentLine;
         int position;
         void tokenize_line(std::string line);
-        void advance();
+        void advance(void);
         void check_buffer(std::string buffer);
         Token lookahead(char character);
+        bool is_letter(char character);
         bool is_integer(char character);
-        bool is_valid_letter(char character);
+        bool is_alphanumeric(char character);
         bool is_valid_identifier(std::string value);
-        Token get_string_literal();
-        Token get_numerical_literal();
+        Token get_keyword_or_identifier(void);
+        Token get_string_literal(void);
+        Token get_numerical_literal(void);
     public:
         Lexer(std::string filename);
         int generate_tokens(void);

@@ -10,9 +10,10 @@
 <primitive-type> ::= [INTEGER] | [STRING] | [FLOAT] | [BOOLEAN]
 <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
 <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
-<output> ::= [OUTPUT] <expression>
-<input> ::= [INPUT] [IDENTIFIER]
+<output> ::= [OUTPUT] <expression> <statement>
+<input> ::= [INPUT] [IDENTIFIER] <statement>
 <expression> ::= <primitive-literal> | [IDENTIFIER] | ( <expression> ) | <expression> ( <function-call-parameter> ) | <binary-expression> | <unary-expression>
+<expression> ::= <binary-expression> | <unary-expression> 
 <function-call-parameter> ::= <expression> , | <expression>
 <binary-expression> ::= <expression> <operator> <expression>
 <unary-expression> ::= [NOT] <expression> | - <expression>

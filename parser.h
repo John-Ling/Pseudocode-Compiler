@@ -14,10 +14,11 @@ class Parser
         std::vector<Token> currentLine;
         int pointer;
         void parse_line(int pointer);
-        int statement();
-        int function();
-		int function_parameter();
-        int output();
+        int statement(void);
+        int function(void);
+		int function_parameter(void);
+        int output(void);
+        int input(void);
         int expression(int pointer);
         int primitive_literal(void);
 		int primitive_type(void);

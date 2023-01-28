@@ -1,1 +1,0 @@
-FUNCTION Add(A : INTEGER, B : STRING) RETURNS "Hello World"

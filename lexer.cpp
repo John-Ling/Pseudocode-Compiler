@@ -34,9 +34,6 @@ int Lexer::generate_tokens(void)
 
 void Lexer::tokenize_line(std::string line)
 {
-	// add characters to a buffer and examine them once a delimiter is reached
-	// reaching a quotation mark " or integer will trigger functions that take over regular operation and form the integer 
-	// or string rather than adding to buffer
     const char WHITESPACE = ' ';
     this->currentLine = line;
     advance();
@@ -45,81 +42,27 @@ void Lexer::tokenize_line(std::string line)
     while (this->position != -1) // read until end of line
     {
         char character = this->currentLine[this->position];
-
-        // example delimiters
-        // specific single characters such as ( or , or <
-        // the start of a potential integer or float literal
-        // the start of a potential string literal
-        // character is a whitespace which acts as a delimiter
-        // a buffer check is to discern the type of keyword being used or the name of an identifier
-
         if (this->SYMBOLS_TO_TOKENS.count(character))
         {
-            check_buffer(buffer);
-            buffer = "";
             Token token = lookahead(character);
+            this->tokens.push_back(token);
+        }
+        else if (is_letter(character))
+        {
+            Token token = get_keyword_or_identifier();
             this->tokens.push_back(token);
         }
         else if (is_integer(character))
         {
-            check_buffer(buffer);
-            buffer = "";
             Token token = get_numerical_literal();
             this->tokens.push_back(token);
         }
         else if (character == '"')
         {
-            check_buffer(buffer);
-            buffer = "";
             Token token = get_string_literal();
             this->tokens.push_back(token);
         }
-        else if (character == WHITESPACE) // if encountered whitespace or end of line
-        {
-            check_buffer(buffer);
-            buffer = "";
-        }
-
-        if (character != WHITESPACE && !this->SYMBOLS_TO_TOKENS.count(character)) // ignore symbols and whitespace
-        {
-            buffer = buffer + character;
-        }
         advance();
-    }
-    check_buffer(buffer);
-    return;
-}
-
-void Lexer::check_buffer(std::string buffer)
-{
-    const std::string BOOLEAN_LITERAL = "[BOOLEAN_LITERAL]";
-    const std::string IDENTIFIER = "[IDENTIFIER]";
-
-    // check if buffer is a valid keyword or symbol then add that respective token if so
-    if (buffer == "")
-    {
-        return;
-    }
-
-    if (this->SYMBOLS_TO_TOKENS.count(buffer[0]))
-    {
-        Token token = lookahead(buffer[0]);
-        this->tokens.push_back(token);
-    }
-    else if (this->KEYWORDS_TO_TOKENS.count(buffer))
-    {
-        Token token(this->KEYWORDS_TO_TOKENS.at(buffer), buffer);
-        this->tokens.push_back(token);
-    }
-    else if (buffer == "TRUE" || buffer == "FALSE")
-    {
-        Token token(BOOLEAN_LITERAL, buffer);
-        this->tokens.push_back(token);
-    }
-    else if (is_valid_identifier(buffer))
-    {
-        Token token(IDENTIFIER, buffer);
-        this->tokens.push_back(token);
     }
 }
 
@@ -156,7 +99,7 @@ Token Lexer::lookahead(char character)
 void Lexer::advance()
 {
     this->position++;
-    if (this->position >= this->currentLine.length()) // check if reached end of line
+    if (this->position >= this->currentLine.length() || this->position == -1) // check if reached end of line
     {
         this->position = -1;
     }
@@ -173,7 +116,7 @@ bool Lexer::is_valid_identifier(std::string value)
     }
     for (int i = 0; i < value.length(); i++)
     {
-        if (!is_valid_letter(value[i]) || value[i] == WHITESPACE)
+        if (!is_alphanumeric(value[i]) || value[i] == WHITESPACE)
         {
             return false;
         }
@@ -181,7 +124,34 @@ bool Lexer::is_valid_identifier(std::string value)
     return true;
 }
 
-Token Lexer::get_numerical_literal()
+Token Lexer::get_keyword_or_identifier(void)
+{
+    Token token;
+    std::string buffer = {this->currentLine[this->position]};
+    advance();
+    while (is_alphanumeric(this->currentLine[this->position]) && this->position != -1)
+    {
+        buffer = buffer + this->currentLine[this->position];
+        advance();
+    }
+    if (this->KEYWORDS_TO_TOKENS.count(buffer))
+    {
+        token.type = this->KEYWORDS_TO_TOKENS.at(buffer);
+    }
+    else if (buffer == "TRUE" || buffer == "FALSE")
+    {
+        token.type = "[BOOLEAN_LITERAL]";
+    }
+    else
+    {
+        token.type = "[IDENTIFIER]";
+    }
+    token.value = buffer;
+    this->position--;
+    return token;
+}
+
+Token Lexer::get_numerical_literal(void)
 {
     // get either a float or integer literal depending on the presence of a decimal point
     const std::string INTEGER_LITERAL = "[INTEGER_LITERAL]";
@@ -233,13 +203,25 @@ bool Lexer::is_integer(char character)
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
-bool Lexer::is_valid_letter(char character)
+bool Lexer::is_letter(char character)
+{
+    const int ASCII_MIN_LOWER = 97;
+    const int ASCII_MIN_UPPER = 65;
+    const int ASCII_MAX_LOWER = 122;
+    const int ASCII_MAX_UPPER = 90;
+    int ascii = (int)character;
+
+    if ((ascii >= ASCII_MIN_LOWER && ascii <= ASCII_MAX_LOWER) || (ascii >= ASCII_MIN_UPPER && ascii <= ASCII_MAX_UPPER))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Lexer::is_alphanumeric(char character)
 {
     // checks if letter is character from a-z or A-Z or 0-9
     const int ASCII_MIN_LOWER = 97;
@@ -254,8 +236,5 @@ bool Lexer::is_valid_letter(char character)
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
