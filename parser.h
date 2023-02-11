@@ -15,11 +15,14 @@ class Parser
         int pointer;
         void parse_line(int pointer);
         int statement(void);
+        int match(std::string tokenType);
         int function(void);
 		int function_parameter(void);
         int output(void);
         int input(void);
-        int expression(int pointer);
+        int expression(void);
+        int expression_term(void);
+        int function_call(void);
         int primitive_literal(void);
 		int primitive_type(void);
         int operator_(int pointer);

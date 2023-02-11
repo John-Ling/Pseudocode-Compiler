@@ -12,8 +12,16 @@
 <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
 <output> ::= [OUTPUT] <expression> <statement>
 <input> ::= [INPUT] [IDENTIFIER] <statement>
-<expression> ::= <primitive-literal> | [IDENTIFIER] | ( <expression> ) | <expression> ( <function-call-parameter> ) | <binary-expression> | <unary-expression>
-<expression> ::= <binary-expression> | <unary-expression> 
+
+<expression> ::= <unary-expression> | [IDENTIFIER] | [IDENTIFIER] ( <function-call-paramter> ) | <primitive-literal> | ( <single-expression> )
+<binary-expression> :: = <expression> <operator> <expression>
+<binary-expression> ::= <expression> <operator> <expression>
+
+<expression> ::= <binary-expression> | <unary-expression> | (expression) | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | <primitive-literal>
+<expression-type> ::= <unary-expression> | (expression) | [IDENTIFIER] | [IDENTIFIER] ( <function-call-parameter> ) | <primitive-literal> | <binary-expression>
 <function-call-parameter> ::= <expression> , | <expression>
 <binary-expression> ::= <expression> <operator> <expression>
 <unary-expression> ::= [NOT] <expression> | - <expression>
+
+OUTPUT 2 + 2
+OUTPUT (3 + 2) + 5

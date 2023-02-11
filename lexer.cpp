@@ -37,17 +37,16 @@ void Lexer::tokenize_line(std::string line)
     const char WHITESPACE = ' ';
     this->currentLine = line;
     advance();
-    int maxIndex = line.length() - 1;
-    std::string buffer;
+    
     while (this->position != -1) // read until end of line
     {
         char character = this->currentLine[this->position];
-        if (this->SYMBOLS_TO_TOKENS.count(character))
+        if (this->SYMBOLS_TO_TOKENS.count(character)) // common single character tokens such as brackets, commas, colons etc
         {
             Token token = lookahead(character);
             this->tokens.push_back(token);
         }
-        else if (is_letter(character))
+        else if (is_letter(character)) // build a keyword or identifier from alphanumeric characters
         {
             Token token = get_keyword_or_identifier();
             this->tokens.push_back(token);
@@ -71,7 +70,7 @@ Token Lexer::lookahead(char character)
     // "peeks" at the next two character to take the valid maximal munch of a potential token
     // when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
     // return generated token
-    if (character == '>' || character == '<') // in psuedocode there are only two characters with double or triple operators
+    if (character == Keywords::LESSER || character == Keywords::GREATER) // in psuedocode there are only two characters with double or triple operators
     {
         std::string largestOperator = {character};
         Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
@@ -138,13 +137,17 @@ Token Lexer::get_keyword_or_identifier(void)
     {
         token.type = this->KEYWORDS_TO_TOKENS.at(buffer);
     }
-    else if (buffer == "TRUE" || buffer == "FALSE")
+    else if (buffer == Keywords::TRUE || buffer == Keywords::FALSE)
     {
-        token.type = "[BOOLEAN_LITERAL]";
+        token.type = Tokens::BOOLEAN_LITERAL;
+    }
+    else if (is_valid_identifier(buffer))
+    {
+        token.type = Tokens::IDENTIFIER;
     }
     else
     {
-        token.type = "[IDENTIFIER]";
+        token.type = Tokens::UNKNOWN;
     }
     token.value = buffer;
     this->position--;
@@ -154,17 +157,14 @@ Token Lexer::get_keyword_or_identifier(void)
 Token Lexer::get_numerical_literal(void)
 {
     // get either a float or integer literal depending on the presence of a decimal point
-    const std::string INTEGER_LITERAL = "[INTEGER_LITERAL]";
-    const std::string FLOAT_LITERAL = "[FLOAT_LITERAL]";
-
-    std::string type = INTEGER_LITERAL;
+    std::string type = Tokens::INTEGER_LITERAL;
     std::string number;
     char character = this->currentLine[this->position];
     while ((is_integer(character) || character == '.') && this->position != -1)
     {
         if (character == '.')
         {
-            type = FLOAT_LITERAL;
+            type = Tokens::FLOAT_LITERAL;
         }
         number = number + character;
         advance();
@@ -177,7 +177,6 @@ Token Lexer::get_numerical_literal(void)
 
 Token Lexer::get_string_literal()
 {
-    const std::string STRING_LITERAL = "[STRING_LITERAL]";
     // read up to ending character ) and create a string literal
     char character = this->currentLine[this->position];
     std::string stringLiteral;
@@ -191,7 +190,7 @@ Token Lexer::get_string_literal()
         character = this->currentLine[this->position];
     }
     stringLiteral = stringLiteral + character; // add closing quotation mark
-    Token token(STRING_LITERAL, stringLiteral);
+    Token token(Tokens::STRING_LITERAL, stringLiteral);
     return token;
 }
 

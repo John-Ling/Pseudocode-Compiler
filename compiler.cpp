@@ -15,7 +15,6 @@ int Compiler::compile(void)
 
     // Parsing
     // Parser parser(lexer.tokens);
-    Parser parser(lexer.tokens);
-	parser.parse_tokens();
+	// parser.parse_tokens();
     return 0;
 }
