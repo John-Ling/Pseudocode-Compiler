@@ -1,4 +1,4 @@
-<statement> ::= <function> | <while> | <if> | <else> | <output> | <input> | <return> | <variable-declaration> | <expression> | <variable-assignment>
+<statement> ::= <function> | <while> | <if> | <else> | <output> | <input> | <return> | <variable-declaration> | <variable-assignment> | <expression>
 <function> ::= [FUNCTION] [IDENTIFIER] ( ) [RETURNS] <primitive-type> <statement> [ENDFUNCTION] | [FUNCTION] [IDENTIFIER] (  [IDENTIFIER] : <primitive-type> <function-parameter> <statement> [ENDFUNCTION] 
 <function-parameter> ::= ) | , [IDENTIFIER] : <primitive-type> <function-parameter> 
 <while> ::= [WHILE] ( <expression> ) <statement> [ENDWHILE]
@@ -13,15 +13,16 @@
 <output> ::= [OUTPUT] <expression> <statement>
 <input> ::= [INPUT] [IDENTIFIER] <statement>
 
-<expression> ::= <unary-expression> | [IDENTIFIER] | [IDENTIFIER] ( <function-call-paramter> ) | <primitive-literal> | ( <single-expression> )
-<binary-expression> :: = <expression> <operator> <expression>
-<binary-expression> ::= <expression> <operator> <expression>
-
-<expression> ::= <binary-expression> | <unary-expression> | (expression) | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | <primitive-literal>
-<expression-type> ::= <unary-expression> | (expression) | [IDENTIFIER] | [IDENTIFIER] ( <function-call-parameter> ) | <primitive-literal> | <binary-expression>
-<function-call-parameter> ::= <expression> , | <expression>
-<binary-expression> ::= <expression> <operator> <expression>
-<unary-expression> ::= [NOT] <expression> | - <expression>
-
+<expression> ::= <equality>
+<equality> ::= <comparison> ( ( <> | = )  <comparison> )*
+<comparison> ::= <term> ( ( > | >= | < | <= ) <term> )*
+<term> ::= <factor> ( ( - | + ) <factor> )*
+<factor> ::= <unary> ( ( * | / ) <unary> )*
+<unary> ::= ([NOT] | - ) <unary> | <primary>
+<primary ::= <primitive-literal> | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | ( <expression> )
+<function-call-parameter> ::= <expression> , <function-call-parameter> | <expression>
 OUTPUT 2 + 2
 OUTPUT (3 + 2) + 5
+
+(2 + 5) * 3
+1 + 2 + 3

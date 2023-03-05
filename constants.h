@@ -21,7 +21,7 @@ namespace Tokens
 	const std::string OR = "[OR]";
 	const std::string STRING = "[STRING]";
 	const std::string INTEGER = "[INTEGER]";
-	const std::string REAL = "[FLOAT]";
+	const std::string FLOAT = "[FLOAT]";
 	const std::string MOD = "[MODULUS]";
 	const std::string DECLARE = "[DECLARE]";
 	const std::string NOT = "[NOT]";
@@ -58,6 +58,9 @@ namespace Tokens
 	const std::string FLOAT_LITERAL = "[FLOAT_LITERAL]";
 	const std::string IDENTIFIER = "[IDENTIFIER]";
 	const std::string UNKNOWN = "[UNKNOWN]";
+
+	// Misc
+	const std::string END_OF_LINE = "[EOL]";
 }
 
 namespace Keywords
@@ -78,7 +81,7 @@ namespace Keywords
 	const std::string OR = "OR";
 	const std::string STRING = "STRING";
 	const std::string INTEGER = "INTEGER";
-	const std::string REAL = "REAL";
+	const std::string FLOAT = "`";
 	const std::string MOD = "MOD";
 	const std::string DECLARE = "DECLARE";
 	const std::string NOT = "NOT";
@@ -111,6 +114,7 @@ namespace Keywords
 	// MISC
 	const std::string TRUE = "TRUE";
 	const std::string FALSE = "FALSE";
+	const std::string END_OF_LINE = "EOL";
 }
 
 #endif
