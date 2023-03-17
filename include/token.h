@@ -3,7 +3,7 @@
 
 typedef struct Token_T
 {
-  std::string type;
+  std::string type; 
   std::string value;
   Token_T(std::string type, std::string value)
   {

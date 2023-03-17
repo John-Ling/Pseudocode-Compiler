@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "../include/lexer.h"
 
 Lexer::Lexer(std::string filename)
 {
@@ -24,7 +24,9 @@ int Lexer::generate_tokens(void)
             tokenize_line(line);
         }
     }
-
+    // add final EOF token
+    Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
+    this->tokens.push_back(token);
     for (int i = 0; i < this->tokens.size(); i++)
     {
         std::cout << this->tokens[i].type << " " << this->tokens[i].value << std::endl;

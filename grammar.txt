@@ -2,14 +2,13 @@
 <function> ::= [FUNCTION] [IDENTIFIER] ( ) [RETURNS] <primitive-type> <statement> [ENDFUNCTION] | [FUNCTION] [IDENTIFIER] (  [IDENTIFIER] : <primitive-type> <function-parameter> <statement> [ENDFUNCTION] 
 <function-parameter> ::= ) | , [IDENTIFIER] : <primitive-type> <function-parameter> 
 <while> ::= [WHILE] ( <expression> ) <statement> [ENDWHILE]
-<if> ::= [IF] ( <expression> ) [THEN] <statement>
-<else-if> ::= [ELSE] <if>
+<if> ::= [IF] ( <expression> ) [THEN] <statement> [ENDIF]
 <else> ::= [ELSE] <statement>
 <return> ::= [RETURN] <expression>
 <primitive-literal> ::= [INTEGER_LITERAL] | [FLOAT_LITERAL] | [STRING_LITERAL] | [BOOLEAN_LITERAL]
 <primitive-type> ::= [INTEGER] | [STRING] | [FLOAT] | [BOOLEAN]
-<variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
-<variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
+<variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type> <statement>
+<variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression> <statement>
 <output> ::= [OUTPUT] <expression> <statement>
 <input> ::= [INPUT] [IDENTIFIER] <statement>
 
@@ -21,8 +20,3 @@
 <unary> ::= ([NOT] | - ) <unary> | <primary>
 <primary ::= <primitive-literal> | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | ( <expression> )
 <function-call-parameter> ::= <expression> , <function-call-parameter> | <expression>
-OUTPUT 2 + 2
-OUTPUT (3 + 2) + 5
-
-(2 + 5) * 3
-1 + 2 + 3

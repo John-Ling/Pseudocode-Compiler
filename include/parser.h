@@ -23,6 +23,13 @@ class Parser
 		int function_parameter(void);
         int output(void);
         int input(void);
+        int while_(void);
+        int if_(void);
+        int else_(void);
+        int for_(void);
+        int return_(void);
+        int variable_declaration(void);
+        int variable_assignment(void);
         int expression(void);
 		int equality(void);
 		int comparison(void);
@@ -33,7 +40,6 @@ class Parser
         int function_call_parameter(void);
         int primitive_literal(void);
 		int primitive_type(void);
-		int variable_declaration(void);
     public:
         Parser(std::vector<Token> tokens);
         int parse_tokens(void);

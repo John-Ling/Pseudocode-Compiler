@@ -10,7 +10,7 @@ namespace Tokens
 	const std::string WHILE = "[WHILE]";
 	const std::string OUTPUT = "[OUTPUT]";
 	const std::string INPUT = "[INPUT]";
-	const std::string ASSIGNMENT = "<--";
+	const std::string ASSIGNMENT = "[ASSIGNMENT]";
 	const std::string IF = "[IF]";
 	const std::string ELSE = "[ELSE]";
 	const std::string GREATER_EQUAL = "[GREATER_EQUAL]";
@@ -60,7 +60,7 @@ namespace Tokens
 	const std::string UNKNOWN = "[UNKNOWN]";
 
 	// Misc
-	const std::string END_OF_LINE = "[EOL]";
+	const std::string END_OF_FILE = "[EOF]";
 }
 
 namespace Keywords
@@ -114,7 +114,7 @@ namespace Keywords
 	// MISC
 	const std::string TRUE = "TRUE";
 	const std::string FALSE = "FALSE";
-	const std::string END_OF_LINE = "EOL";
+	const std::string END_OF_FILE = "EOF";
 }
 
 #endif
