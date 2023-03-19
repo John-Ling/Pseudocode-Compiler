@@ -1,4 +1,4 @@
-#include "../include/compiler.h"
+#include "compiler.h"
 
 // branch test
 // second branch test
