@@ -1,16 +1,17 @@
 <statement> ::= <function> | <while> | <if> | <else> | <output> | <input> | <return> | <variable-declaration> | <variable-assignment> | <expression>
-<function> ::= [FUNCTION] [IDENTIFIER] ( ) [RETURNS] <primitive-type> <statement> [ENDFUNCTION] | [FUNCTION] [IDENTIFIER] (  [IDENTIFIER] : <primitive-type> <function-parameter> <statement> [ENDFUNCTION] 
+<function> ::= [FUNCTION] [IDENTIFIER] ( ) [RETURNS] <primitive-type> <statement> [ENDFUNCTION] | [FUNCTION] [IDENTIFIER] (  [IDENTIFIER] : <primitive-type> <function-parameter> (<statement>)* [ENDFUNCTION] 
 <function-parameter> ::= ) | , [IDENTIFIER] : <primitive-type> <function-parameter> 
-<while> ::= [WHILE] ( <expression> ) <statement> [ENDWHILE]
-<if> ::= [IF] ( <expression> ) [THEN] <statement> [ENDIF]
+<while> ::= [WHILE] ( <expression> ) (<statement>)* [ENDWHILE]
+<if> ::= [IF] ( <expression> ) [THEN] (<statement>)* [ENDIF]
 <else> ::= [ELSE] <statement>
+<for> ::= [FOR] [IDENTIFIER] [ASSIGNMENT] <expression> TO <expression> ([STEP] [INTEGER_LITERAL])? (<statement>)* [NEXT] [IDENTIFIER]
 <return> ::= [RETURN] <expression>
 <primitive-literal> ::= [INTEGER_LITERAL] | [FLOAT_LITERAL] | [STRING_LITERAL] | [BOOLEAN_LITERAL]
 <primitive-type> ::= [INTEGER] | [STRING] | [FLOAT] | [BOOLEAN]
-<variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type> <statement>
-<variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression> <statement>
-<output> ::= [OUTPUT] <expression> <statement>
-<input> ::= [INPUT] [IDENTIFIER] <statement>
+<variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
+<variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression> 
+<output> ::= [OUTPUT] <expression>
+<input> ::= [INPUT] [IDENTIFIER]
 
 <expression> ::= <equality>
 <equality> ::= <comparison> ( ( <> | = )  <comparison> )*

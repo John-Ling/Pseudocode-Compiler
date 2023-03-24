@@ -81,7 +81,7 @@ namespace Keywords
 	const std::string OR = "OR";
 	const std::string STRING = "STRING";
 	const std::string INTEGER = "INTEGER";
-	const std::string FLOAT = "`";
+	const std::string FLOAT = "REAL";
 	const std::string MOD = "MOD";
 	const std::string DECLARE = "DECLARE";
 	const std::string NOT = "NOT";

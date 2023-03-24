@@ -1,5 +1,1 @@
-FUNCTION Add(A : INTEGER, B : STRING) RETURNS INTEGER
-    INPUT Hello
-    INPUT Other
-    INPUT Something
-ENDFUNCTION
+Index < Limit AND Flag = TRUE

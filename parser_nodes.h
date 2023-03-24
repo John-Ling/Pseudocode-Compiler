@@ -2,35 +2,50 @@
 #define Parser_Nodes_H
 
 #include <iostream>
+#include "token.h"
+
+typedef struct Variable_Assignment_T 
+{
+    Token expression;
+    Token variable;
+    Variable_Assignment_T(Token variable, Token expression)
+    {
+        this->variable = variable;
+        this->expression = expression;
+    }
+} Variable_Assignment;
 
 typedef struct Primitive_Literal_T
 {
-    std::string value;
+    Token value;
+    Primitive_Literal_T(Token value)
+    {
+        this->value = value;
+    }
 } Primitive_Literal;
 
-
-typedef struct Add_Node_T
+typedef struct Binary_Expression_T
 {
-    std::string operand1;
-    std::string operand2;
-} Add_Node;
+    Token expression1;
+    Token expression2;
+    Token expressionOperator;
+    Binary_Expression_T(Token expression1, Token expressionOperator, Token expression2)
+    {
+        this->expression1 = expression1;
+        this->expressionOperator = expressionOperator;
+        this->expression2 = expression2;
+    }
+} Binary_Expression;
 
-typedef struct Subtract_Node_T
+typedef struct Unary_Expression_T
 {
-    std::string operand1;
-    std::string operand2;
-} Subtract_Node;
-
-typedef struct Multiplication_Node_T
-{
-    std::string operand1;
-    std::string operand2;
-} Multiplication_Node;
-
-typedef struct Division_Node_T
-{
-    std::string operand1;
-    std::string operand2;
-} Division_Node;
+    Token expression;
+    Token unaryOperator;
+    Unary_Expression_T(Token expression, Token unaryOperator)
+    {
+        this->expression = expression;
+        this->unaryOperator = unaryOperator;
+    }
+} Unary_Expression;
 
 #endif

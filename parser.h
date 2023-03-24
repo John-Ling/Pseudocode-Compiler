@@ -19,6 +19,8 @@ class Parser
         int statement(void);
         bool match(std::string tokenType);
 		void advance(void);
+        void backtrack(void);
+        bool peek(std::string tokenType);
         int function(void);
 		int function_parameter(void);
         int output(void);
@@ -31,8 +33,9 @@ class Parser
         int variable_declaration(void);
         int variable_assignment(void);
         int expression(void);
+        int logical_comparison(void);
 		int equality(void);
-		int comparison(void);
+		int numerical_comparison(void);
 		int term(void);
 		int factor(void);
 		int unary(void);

@@ -29,6 +29,19 @@ bool Parser::match(std::string tokenType)
 	return matched;
 }
 
+bool Parser::peek(std::string tokenType) // matches the next token with tokenType
+{
+	bool matched = false;
+	if (this->pointer + 1 < this->tokens.size())
+	{
+		if (this->tokens[this->pointer + 1].type == tokenType)
+		{
+			matched = true;
+		}
+	}
+	return matched;
+}
+
 void Parser::advance(void)
 {
 	if (this->pointer == -1 || this->pointer + 1 >= this->tokens.size())
@@ -42,9 +55,15 @@ void Parser::advance(void)
 	return;
 }
 
+void Parser::backtrack(void)
+{
+	this->pointer--;
+	return;
+}
+
 int Parser::statement(void)
 {
-	 
+	std::cout << "Statement() Token In: " << this->tokens[this->pointer].type << ' ' << this->tokens[this->pointer].value << '\n';
     if (match(Tokens::OUTPUT))
     {
 		// generate an output node
@@ -74,11 +93,6 @@ int Parser::statement(void)
 		advance();
 		return for_();
 	}
-	else if (match(Tokens::IDENTIFIER))
-	{
-		advance();
-		return variable_assignment();
-	}
 	else if (match(Tokens::RETURN))
 	{
 		advance();
@@ -94,23 +108,6 @@ int Parser::statement(void)
 		advance();
 		return if_();
 	}
-	else if (match(Tokens::ELSE))
-	{
-		advance();
-		return else_();
-	}
-	else if (match(Tokens::ENDFUNCTION))
-	{ 
-		return 0;
-	}
-	else if (match(Tokens::ENDWHILE))
-	{
-		return 0;
-	}
-	else if (match(Tokens::ENDIF))
-	{
-		return 0;
-	}
 	else if (match(Tokens::END_OF_FILE))
 	{
 		return 0;
@@ -118,8 +115,8 @@ int Parser::statement(void)
 	else
 	{
 		// attempt to generate a standalone expression node
-		 
-		return expression();
+		int status = expression();
+		return status;
 	}
 }
 
@@ -150,33 +147,65 @@ int Parser::primitive_type(void)
 
 int Parser::variable_declaration(void)
 {
-	// <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type> <statement>
+	// <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
+	std::cout << this->tokens[this->pointer].type << '\n';
 	if (!match(Tokens::IDENTIFIER))
 	{
 		return 1;
 	}
 	advance();
+	std::cout << this->tokens[this->pointer].type << '\n';
 	if (!match(Tokens::COLON))
 	{
 		return 1;
 	}
 	advance();
+	std::cout << this->tokens[this->pointer].value << '\n';
 	if (primitive_type() == 1)
-	{
-		return 1;
-	}
-	 
-	advance();
-	if (statement() == 1)
 	{
 		return 1;
 	}
 	return 0;
 }
 
-int Parser::variable_assignment(void)
+int Parser::output(void)
 {
-	// <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression> <statement>
+	// <output> ::= [OUTPUT] <expression> (, <expression>)*
+	if (expression() == 1)
+	{
+		return 1;
+	}
+	std::cout << this->tokens[this->pointer + 1].type << '\n';
+	while (peek(Tokens::COMMA) && this->pointer != -1)
+	{
+		advance(); // reach comma
+		advance(); // skip comma
+		if (expression() == 1)
+		{
+			return 1;
+		}
+	}
+    return 0;
+}
+
+int Parser::input(void)
+{
+	// <input> ::= [INPUT] [IDENTIFIER]
+	if (!match(Tokens::IDENTIFIER))
+	{
+		return 1;
+	}
+	return 0;
+}
+
+int Parser::for_(void)
+{
+	// <for> ::= [FOR] [IDENTIFIER] [ASSIGNMENT] <expression> TO <expression> ([STEP] [INTEGER_LITERAL])? (<statement>)* [NEXT] [IDENTIFIER]
+	if (!match(Tokens::IDENTIFIER))
+	{
+		return 1;
+	}
+	advance();
 	if (!match(Tokens::ASSIGNMENT))
 	{
 		return 1;
@@ -186,51 +215,73 @@ int Parser::variable_assignment(void)
 	{
 		return 1;
 	}
-	 
 	advance();
-	if (statement() == 1)
+	if (!match(Tokens::TO))
 	{
 		return 1;
 	}
-	return 0;
-}
-
-int Parser::output(void)
-{
-	// <output> ::= [OUTPUT] <expression> <statement>
+	advance();
 	if (expression() == 1)
 	{
 		return 1;
 	}
-	if (statement() == 1)
-	{
-		return 1;
-	}
-    return 0;
-}
 
-int Parser::input(void)
-{
-	// <input> ::= [INPUT] [IDENTIFIER] <statement>
+	if (peek(Tokens::STEP))
+	{
+		advance();
+		if (!match(Tokens::INTEGER_LITERAL))
+		{
+			return 1;
+		}
+	}
+	advance();
+	while (!match(Tokens::NEXT) && this->pointer != -1)
+	{
+		if (statement() == 1)
+		{
+			return 1;
+		}
+		advance();
+	}
+	advance();
 	if (!match(Tokens::IDENTIFIER))
 	{
 		return 1;
 	}
-	advance();
-	if (statement() == 1)
-	{
-		return 1;
-	}
-	return 0;
-}
-
-int Parser::for_(void)
-{
+	std::cout << "Completed for loop\n";
 	return 0;
 }
 
 int Parser::if_(void)
 {
+	// <if> ::= [IF] <expression> [THEN] (<statement>)* [ENDIF]
+	if (expression() == 1)
+	{
+		return 1;
+	}
+	advance();
+	if (!match(Tokens::THEN))
+	{
+		return 1;
+	}
+	advance();
+	while (!match(Tokens::ENDIF) && this->pointer != -1)
+	{
+		if (match(Tokens::ELSE))
+		{
+			std::cout << "Reached else block\n";
+		}
+		else if (statement() == 1)
+		{
+			return 1;
+		}
+		advance();
+	}
+
+	if (this->pointer == -1)
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -241,6 +292,25 @@ int Parser::else_(void)
 
 int Parser::while_(void)
 {
+	// <while> ::= [WHILE] <expression> (<statement>)* [ENDWHILE]
+	if (expression() == 1)
+	{
+		return 1;
+	}
+	advance();
+	while (!match(Tokens::ENDWHILE) && this->pointer != -1)
+	{
+		if (statement() == 1)
+		{
+			return 1;
+		}
+		advance();
+	}
+
+	if (this->pointer == -1)
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -248,13 +318,6 @@ int Parser::return_(void)
 {
 	// <return> ::= [RETURN] <expression>
 	if (expression() == 1)
-	{
-		return 1;
-	}
-	 
-	advance();
-	 
-	if (statement() == 1)
 	{
 		return 1;
 	}
@@ -323,11 +386,27 @@ int Parser::function(void)
 		return 1;
 	}
 	advance();
-	if (statement() == 1)
+	std::cout << "Valid function declaration\n";
+	while (!match(Tokens::ENDFUNCTION) && this->pointer != -1)
 	{
+		std::cout << "Pointer in loop " << this->pointer << '\n';
+		std::cout << "Token in Loop " << this->tokens[this->pointer].type << '\n';
+		if (statement() == 1)
+		{
+			return 1;
+		}
+		advance();
+	}
+	std::cout << "Exited loop\n";
+	if (this->pointer == -1)
+	{
+		std::cout << "Invalid function\n";
 		return 1;
 	}
-	 
+	else
+	{
+		std::cout << "Valid function\n";
+	}
 	return 0;
 }
 
@@ -368,31 +447,7 @@ int Parser::function_parameter(void)
 	return 1;
 }
 
-int Parser::function_call_parameter(void)
-{
-	// <function-call-parameter> ::= <expression> , <function-call-parameter> | )
-	if (match(Tokens::RBRACKET))
-	{
-		 
-		return 0;
-	}
-	else
-	{
-		advance();
-		if (expression() == 1)
-		{
-			return 1;
-		}
-		advance();
-		if (match(Tokens::COMMA) == 1)
-		{
-			return 1;
-		}
-		return function_call_parameter();
-	}
-}
-
-// EXPRESSION //
+// EXPRESSIONS //
 // <expression> ::= <equality>
 // <equality> ::= <comparison> ( ( <> | = )  <comparison> )*
 // <comparison> ::= <term> ( ( > | >= | < | <= ) <term> )*
@@ -402,32 +457,51 @@ int Parser::function_call_parameter(void)
 // <primary ::= <primitive-literal> | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | ( <expression> )
 // <function-call-parameter> ::= <expression> , <function-call-parameter> | <expression>
 
-int Parser::expression(void)
+int Parser::expression(void) // expression parsing tip when the parser finishes an expression the pointer will be located at the token that finished the expression
 {
 	//<expression> ::= <equality>
 	 
-	if (equality() == 1) 
+	if (logical_comparison() == 1) 
+	{
+		std::cout << "Invalid expression\n";
+		return 1;
+	}
+	std::cout << "Valid expression\n";
+	std::cout << this->pointer << '\n';
+	return 0;
+}
+
+int Parser::logical_comparison(void)
+{
+	if (equality() == 1)
 	{
 		return 1;
+	}
+
+	while (peek(Tokens::AND) || peek(Tokens::OR))
+	{
+		advance();
+		advance();
+		if (equality() == 1)
+		{
+			return 1;
+		}
 	}
 	return 0;
 }
 
 int Parser::equality(void) 
 {
-	 
-	if (comparison() == 1)
+	if (numerical_comparison() == 1)
 	{
 		return 1;
 	}
-	if (this->pointer == -1)
-	{
-		return 0;
-	}
-	while (match(Tokens::NOT_EQUAL) || match(Tokens::EQUAL))
+
+	while (peek(Tokens::EQUAL) || peek(Tokens::NOT_EQUAL))
 	{
 		advance();
-		if (comparison() == 1)
+		advance();
+		if (numerical_comparison() == 1)
 		{
 			return 1;
 		}
@@ -436,22 +510,17 @@ int Parser::equality(void)
 	return 0;
 }
 
-int Parser::comparison(void)
+int Parser::numerical_comparison(void)
 {
-	 
 	if (term() == 1)
 	{
 		return 1;
 	}
-	if (this->pointer == -1)
+
+	std::cout << this->tokens[this->pointer + 1].type << '\n';
+	while (peek(Tokens::GREATER) || peek(Tokens::GREATER_EQUAL) || peek(Tokens::LESSER) || peek(Tokens::LESSER_EQUAL))
 	{
-		return 0;
-	}
-	while (match(Tokens::LESSER)       ||
-		   match(Tokens::LESSER_EQUAL) ||
-		   match(Tokens::GREATER)      ||
-		   match(Tokens::GREATER_EQUAL))
-	{
+		advance();
 		advance();
 		if (term() == 1)
 		{
@@ -464,43 +533,37 @@ int Parser::comparison(void)
 
 int Parser::term(void) 
 {
-	 
 	if (factor() == 1)
 	{
 		return 1;
 	}
-	 
-	if (this->pointer == -1)
+
+	std::cout << "Next " << this->tokens[this->pointer + 1].type << '\n';
+	while (peek(Tokens::ADDITION) || peek(Tokens::SUBTRACTION))
 	{
-		return 0;
-	}
-	while (match(Tokens::ADDITION) || match(Tokens::SUBTRACTION))
-	{
+		Token expressionOperator(this->tokens[this->pointer + 1].type, this->tokens[this->pointer + 1].value); // save operator
+		advance(); // skip over addition and subtraction to form next expression
+		std::cout << this->tokens[this->pointer].value << '\n';
 		advance();
 		if (factor() == 1)
 		{
 			return 1;
 		}
-		 
 	}
 	// add term node
 	return 0;
 }
 
 int Parser::factor(void)
-{
-	 
+{	 
 	if (unary() == 1)
 	{
 		return 1;	
 	}
 	 
-	if (this->pointer == -1)
+	while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION)) 
 	{
-		return 0;
-	}
-	while (match(Tokens::MULTIPLICATION) || match(Tokens::DIVISION)) 
-	{
+		advance();
 		advance();
 		if (unary() == 1)
 		{
@@ -513,7 +576,6 @@ int Parser::factor(void)
 
 int Parser::unary(void)
 {
-	 
 	if (match(Tokens::SUBTRACTION) || match(Tokens::NOT))
 	{
 		advance();
@@ -522,7 +584,6 @@ int Parser::unary(void)
 	}
 	else if (primary() == 0)
 	{
-		advance();
 		return 0;
 	}
 	else
@@ -536,21 +597,28 @@ int Parser::primary(void)
 	 
 	if (primitive_literal() == 0)
 	{
+		std::cout << "Primitive literal " << this->tokens[this->pointer].value << ' ' << this->pointer << '\n';
 		return 0;
 	}
 	else if (match(Tokens::IDENTIFIER))
 	{
+		std::cout << "Matching left bracket\n";
 		advance();
 		if (match(Tokens::LBRACKET))
 		{
+			std::cout << "Matched\n";
 			advance();
-			if (function_parameter() == 0)
-			{
-				return 0;
-			}
+			return function_call_parameter();
+		}
+		if (variable_assignment() == 0)
+		{
+			return 0;
 		}
 		else
 		{
+			backtrack();
+			std::cout << "Single identifier\n";
+			std::cout << this->tokens[this->pointer].type << '\n';
 			return 0;
 		}
 	}
@@ -561,14 +629,61 @@ int Parser::primary(void)
 		{
 			return 1;
 		}
-		 
-		 
+		advance();
 		if (match(Tokens::RBRACKET))
 		{
 			return 0;
 		}
 	}
 	return 1;
+}
+
+int Parser::function_call_parameter(void)
+{
+	// <function-call-parameter> ::= <expression> , <function-call-parameter> | )
+	std::cout << "Function call in: " << this->tokens[this->pointer].type << '\n';
+	if (match(Tokens::RBRACKET))
+	{
+		return 0;
+	}
+	else
+	{
+		if (expression() == 1)
+		{
+			return 1;
+		}
+		std::cout << "Up next " << this->tokens[this->pointer + 1].type << '\n';
+		advance();
+		if (match(Tokens::RBRACKET))
+		{
+			return 0;
+		}
+		else if (!match(Tokens::COMMA))
+		{
+			return 1;
+		}
+		std::cout << "Matched comma\n";
+		advance();
+		return function_call_parameter();
+	}
+}
+
+int Parser::variable_assignment(void)
+{
+	// <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
+	std::cout << "Called variable assignment\n";
+	std::cout<< this->tokens[this->pointer].type << '\n';
+	if (!match(Tokens::ASSIGNMENT))
+	{
+		return 1;
+	}
+	std::cout << "Matched\n";
+	advance();
+	if (expression() == 1)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 // END EXPRESSION // 

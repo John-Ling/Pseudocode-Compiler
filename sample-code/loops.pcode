@@ -6,7 +6,7 @@ Flag <-- TRUE
 
 FOR Index <-- 0 TO Limit
     OUTPUT Index
-NEXT
+NEXT Index
 
 Index <-- 0
 WHILE (Index < Limit AND Flag = TRUE)
