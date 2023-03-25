@@ -115,8 +115,7 @@ int Parser::statement(void)
 	else
 	{
 		// attempt to generate a standalone expression node
-		int status = expression();
-		return status;
+		return expression();
 	}
 }
 

@@ -14,7 +14,6 @@ class Parser
         std::vector<Token> tokens;
         std::vector<Token> currentLine;
         int pointer;
-		bool errorOccurred;
         void parse_line(int pointer);
         int statement(void);
         bool match(std::string tokenType);
