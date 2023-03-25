@@ -27,10 +27,6 @@ int Lexer::generate_tokens(void)
     // add final EOF token
     Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
     this->tokens.push_back(token);
-    for (int i = 0; i < this->tokens.size(); i++)
-    {
-        std::cout << this->tokens[i].type << " " << this->tokens[i].value << std::endl;
-    }
     return 0;
 }
 
@@ -74,6 +70,7 @@ Token Lexer::lookahead(char character)
     // return generated token
     if (character == Keywords::LESSER || character == Keywords::GREATER) // in psuedocode there are only two characters with double or triple operators
     {
+        int offset = 2; // how many places to backtrack if a double or triple letter operator cannot be formed
         std::string largestOperator = {character};
         Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
 
@@ -88,9 +85,11 @@ Token Lexer::lookahead(char character)
                 {
                     token.type = this->KEYWORDS_TO_TOKENS.at(largestOperator);
                     token.value = largestOperator;
+                    offset--;
                 }
             }
         }
+        this->position -= offset;
         return token;
     }
     Token token(this->SYMBOLS_TO_TOKENS.at(character), character);

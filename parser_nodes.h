@@ -2,9 +2,10 @@
 #define Parser_Nodes_H
 
 #include <iostream>
+#include <vector>
 #include "token.h"
 
-typedef struct Variable_Assignment_T 
+typedef struct Variable_Assignment_T
 {
     Token expression;
     Token variable;
@@ -15,6 +16,74 @@ typedef struct Variable_Assignment_T
     }
 } Variable_Assignment;
 
+typedef struct Variable_Declaration_T
+{
+    Token identifier;
+    Token datatype;
+    Variable_Declaration_T(Token identifier, Token datatype)
+    {
+        this->identifier = identifier;
+        this->datatype = datatype;
+    }
+} Variable_Declaration;
+
+typedef struct Output_T
+{
+    Token expression;
+    Output_T(Token expression)
+    {
+        this->expression = expression;
+    }
+} Output;
+
+typedef struct Input_T
+{
+    Token identifier;
+    Token expression;
+    Input_T(Token identifier, Token expression)
+    {
+        this->identifier = identifier;
+        this->expression = expression;
+    }
+} Input;
+
+typedef struct Function_Argument_T
+{
+    Token expression;
+    Token dataType;
+    Function_Argument_T(Token expression, Token dataType)
+    {
+        this->expression = expression;
+        this->dataType = dataType;
+    }
+} Function_Argument;
+
+typedef struct Function_T
+{
+    Token functionName;
+    Token returnType;
+    std::vector<Function_Argument> functionArguments;
+    std::vector<Token> statements; // stores all code within the function 
+    Function_T(Token functionName, Token returnType, std::vector<Function_Argument> functionArguments, std::vector<Token> statements)
+    {
+        this->functionName = functionName;
+        this->returnType = returnType;
+        this->functionArguments = functionArguments;
+        this->statements = statements;
+    }
+} Function;
+
+typedef struct While_T
+{
+    Token expression;
+    std::vector<Token> statements;
+    While_T(Token expression, std::vector<Token> statements)   
+    {
+        this->expression = expression;
+        this->statements = statements;
+    }
+} While;
+
 typedef struct Primitive_Literal_T
 {
     Token value;
@@ -23,6 +92,11 @@ typedef struct Primitive_Literal_T
         this->value = value;
     }
 } Primitive_Literal;
+
+typedef struct Expression_T
+{
+    Token expression;
+}
 
 typedef struct Binary_Expression_T
 {

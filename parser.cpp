@@ -63,7 +63,6 @@ void Parser::backtrack(void)
 
 int Parser::statement(void)
 {
-    std::cout << "Statement() Token In: " << this->tokens[this->pointer].type << ' ' << this->tokens[this->pointer].value << '\n';
     if (match(Tokens::OUTPUT))
     {
         // generate an output node
@@ -147,19 +146,18 @@ int Parser::primitive_type(void)
 int Parser::variable_declaration(void)
 {
     // <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
-    std::cout << this->tokens[this->pointer].type << '\n';
     if (!match(Tokens::IDENTIFIER))
     {
         return 1;
     }
     advance();
-    std::cout << this->tokens[this->pointer].type << '\n';
+
     if (!match(Tokens::COLON))
     {
         return 1;
     }
     advance();
-    std::cout << this->tokens[this->pointer].value << '\n';
+
     if (primitive_type() == 1)
     {
         return 1;
@@ -174,7 +172,7 @@ int Parser::output(void)
     {
         return 1;
     }
-    std::cout << this->tokens[this->pointer + 1].type << '\n';
+
     while (peek(Tokens::COMMA) && this->pointer != -1)
     {
         advance(); // reach comma
@@ -247,7 +245,6 @@ int Parser::for_(void)
     {
         return 1;
     }
-    std::cout << "Completed for loop\n";
     return 0;
 }
 
@@ -338,73 +335,69 @@ int Parser::function(void)
         return 1;
     }
     advance();
-    if (match(Tokens::RBRACKET)) // function without parameters
+
+    int functionArgumentsCount = 0;
+    while (!match(Tokens::RBRACKET) && this->pointer != -1)
     {
-        advance();
-        if (!match(Tokens::RETURNS))
+        if (functionArgumentsCount > 0)  // one comma to separate each function argument
         {
-            return 1;
+            if (!match(Tokens::COMMA))
+            {
+                return 1;
+            }
+            advance();
         }
-        advance();
-        if (primitive_type() == 1)
-        {
-            return 1;
-        }
-        return 0;
-    }
-    else
-    {
+
         if (!match(Tokens::IDENTIFIER))
         {
             return 1;
         }
         advance();
+        
         if (!match(Tokens::COLON))
         {
             return 1;
         }
         advance();
+
         if (primitive_type() == 1)
         {
             return 1;
         }
         advance();
-        if (function_parameter() == 1)
-        {
-            return 1;
-        }
+
+        functionArgumentsCount++;
+    }
+
+    if (this->pointer == -1)
+    {
+        return 1;
     }
     advance();
+
     if (!match(Tokens::RETURNS))
     {
         return 1;
     }
     advance();
+
     if (primitive_type() == 1)
     {
         return 1;
     }
     advance();
-    std::cout << "Valid function declaration\n";
+
     while (!match(Tokens::ENDFUNCTION) && this->pointer != -1)
     {
-        std::cout << "Pointer in loop " << this->pointer << '\n';
-        std::cout << "Token in Loop " << this->tokens[this->pointer].type << '\n';
         if (statement() == 1)
         {
             return 1;
         }
         advance();
     }
-    std::cout << "Exited loop\n";
     if (this->pointer == -1)
     {
-        std::cout << "Invalid function\n";
         return 1;
-    }
-    else
-    {
-        std::cout << "Valid function\n";
     }
     return 0;
 }
@@ -415,7 +408,6 @@ int Parser::function_parameter(void)
 
     if (this->tokens[this->pointer].type == "[RBRACKET]")
     {
-
         return 0;
     }
     else if (this->tokens[this->pointer].type == "[COMMA]")
@@ -447,7 +439,8 @@ int Parser::function_parameter(void)
 }
 
 // EXPRESSIONS //
-// <expression> ::= <equality>
+// <expression> ::= <logical-comparison>
+// <logical-comparison> ::= <equality> (([AND] | [OR]) <equality>)*
 // <equality> ::= <comparison> ( ( <> | = )  <comparison> )*
 // <comparison> ::= <term> ( ( > | >= | < | <= ) <term> )*
 // <term> ::= <factor> ( ( - | + ) <factor> )*
@@ -462,11 +455,8 @@ int Parser::expression(void) // expression parsing tip when the parser finishes 
 
     if (logical_comparison() == 1)
     {
-        std::cout << "Invalid expression\n";
         return 1;
     }
-    std::cout << "Valid expression\n";
-    std::cout << this->pointer << '\n';
     return 0;
 }
 
@@ -516,11 +506,12 @@ int Parser::numerical_comparison(void)
         return 1;
     }
 
-    std::cout << this->tokens[this->pointer + 1].type << '\n';
     while (peek(Tokens::GREATER) || peek(Tokens::GREATER_EQUAL) || peek(Tokens::LESSER) || peek(Tokens::LESSER_EQUAL))
     {
         advance();
+        std::cout << this->tokens[this->pointer].type << '\n';
         advance();
+        std::cout << this->tokens[this->pointer].type << '\n';
         if (term() == 1)
         {
             return 1;
@@ -537,12 +528,10 @@ int Parser::term(void)
         return 1;
     }
 
-    std::cout << "Next " << this->tokens[this->pointer + 1].type << '\n';
     while (peek(Tokens::ADDITION) || peek(Tokens::SUBTRACTION))
     {
         Token expressionOperator(this->tokens[this->pointer + 1].type, this->tokens[this->pointer + 1].value); // save operator
         advance();                                                                                             // skip over addition and subtraction to form next expression
-        std::cout << this->tokens[this->pointer].value << '\n';
         advance();
         if (factor() == 1)
         {
@@ -596,16 +585,13 @@ int Parser::primary(void)
 
     if (primitive_literal() == 0)
     {
-        std::cout << "Primitive literal " << this->tokens[this->pointer].value << ' ' << this->pointer << '\n';
         return 0;
     }
     else if (match(Tokens::IDENTIFIER))
     {
-        std::cout << "Matching left bracket\n";
         advance();
         if (match(Tokens::LBRACKET))
         {
-            std::cout << "Matched\n";
             advance();
             return function_call_parameter();
         }
@@ -616,8 +602,6 @@ int Parser::primary(void)
         else
         {
             backtrack();
-            std::cout << "Single identifier\n";
-            std::cout << this->tokens[this->pointer].type << '\n';
             return 0;
         }
     }
@@ -640,7 +624,6 @@ int Parser::primary(void)
 int Parser::function_call_parameter(void)
 {
     // <function-call-parameter> ::= <expression> , <function-call-parameter> | )
-    std::cout << "Function call in: " << this->tokens[this->pointer].type << '\n';
     if (match(Tokens::RBRACKET))
     {
         return 0;
@@ -651,7 +634,6 @@ int Parser::function_call_parameter(void)
         {
             return 1;
         }
-        std::cout << "Up next " << this->tokens[this->pointer + 1].type << '\n';
         advance();
         if (match(Tokens::RBRACKET))
         {
@@ -661,7 +643,6 @@ int Parser::function_call_parameter(void)
         {
             return 1;
         }
-        std::cout << "Matched comma\n";
         advance();
         return function_call_parameter();
     }
@@ -670,13 +651,11 @@ int Parser::function_call_parameter(void)
 int Parser::variable_assignment(void)
 {
     // <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
-    std::cout << "Called variable assignment\n";
-    std::cout << this->tokens[this->pointer].type << '\n';
     if (!match(Tokens::ASSIGNMENT))
     {
         return 1;
     }
-    std::cout << "Matched\n";
+
     advance();
     if (expression() == 1)
     {

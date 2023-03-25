@@ -10,7 +10,7 @@ ENDIF
 DECLARE Number : INTEGER
 Number <-- 433242
 
-IF (Number >= 324) THEN
+IF (Number > 324) THEN
     IF Number = 34234 THEN
         OUTPUT "Number is Exactly", 34234
     ELSE

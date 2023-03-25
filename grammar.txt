@@ -13,7 +13,8 @@
 <output> ::= [OUTPUT] <expression>
 <input> ::= [INPUT] [IDENTIFIER]
 
-<expression> ::= <equality>
+<expression> ::= <logical-comparison>
+<logical-comparison> ::= <equality> (([AND] | [OR]) <equality>)*
 <equality> ::= <comparison> ( ( <> | = )  <comparison> )*
 <comparison> ::= <term> ( ( > | >= | < | <= ) <term> )*
 <term> ::= <factor> ( ( - | + ) <factor> )*
