@@ -8,6 +8,9 @@
 
 typedef struct Node_T{} Node; // abstract-like class to represent all nodes in one keyword
 
+
+
+
 typedef struct Variable_Declaration_T: Node
 {
     const std::string NAME = "variable_declaration";

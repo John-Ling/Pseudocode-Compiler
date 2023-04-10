@@ -2,14 +2,21 @@
 #define Token_H
 
 #include <string>
-
-class Token
+typedef struct Token_T
 {
-public:
     std::string type;
     std::string value;
-    Token(void);
-    Token(std::string type, std::string value);
-};
+
+    Token_T(void)
+    {
+        this->type;
+        this->value;
+    }
+    Token_T(std::string type, std::string value)
+    {
+        this->type = type;
+        this->value = value;
+    }
+} Token;
 
 #endif
