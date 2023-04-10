@@ -9,6 +9,7 @@
 // Stages of Development
 // Lexer: Done
 // Parser: Current
+// Code generation: Not Done
 
 int main(int argc, char* argv[])
 {
@@ -21,8 +22,12 @@ int main(int argc, char* argv[])
 
     Compiler compiler(filename);
     if (compiler.compile() == 0)
+    {
         std::cout << "Compilation Successful" << std::endl;
+    }
     else
+    {
         std::cout << "Compilation Failed" << std::endl;
+    }
     return 0;
 }

@@ -7,7 +7,7 @@
 class Compiler
 {    
     private:
-        std::string targetFile;
+        std::string sourceFile;
     public:
         Compiler(std::string filename);
         int compile(void);

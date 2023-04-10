@@ -7,6 +7,7 @@
 
 #include "token.h"
 #include "constants.h"
+#include "ast_nodes.h"
 
 class Parser
 {
@@ -31,14 +32,14 @@ private:
     int return_(void);
     int variable_declaration(void);
     int variable_assignment(void);
-    int expression(void);
-    int logical_comparison(void);
-    int equality(void);
-    int numerical_comparison(void);
-    int term(void);
-    int factor(void);
-    int unary(void);
-    int primary();
+    Node expression(void);
+    Node logical_comparison(void);
+    Node equality(void);
+    Node numerical_comparison(void);
+    Node term(void);
+    Node factor(void);
+    Node unary(void);
+    Node primary();
     int function_call_parameter(void);
     int primitive_literal(void);
     int primitive_type(void);

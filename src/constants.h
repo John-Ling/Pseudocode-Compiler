@@ -97,24 +97,29 @@ namespace Keywords
 	const std::string STEP = "STEP";
 
 	// SINGLE CHARACTER KEYWORDS
-	const char ADDITION = '+';
-	const char SUBTRACTION = '-';
-	const char MULTIPLICATION = '*';
-	const char DIVISION = '/';
-	const char EQUAL = '=';
-	const char GREATER = '>';
-	const char LESSER = '<';
-	const char COLON = ':';
-	const char LBRACKET = '(';
-	const char RBRACKET = ')';
-	const char LSQUARE = '[';
-	const char RSQUARE = ']';
-	const char COMMA = ',';
+	const std::string ADDITION = "+";
+	const std::string SUBTRACTION = "-";
+	const std::string MULTIPLICATION = "*";
+	const std::string DIVISION = "/";
+	const std::string EQUAL = "=";
+	const std::string GREATER = ">";
+	const std::string LESSER = "<";
+	const std::string COLON = ":";
+	const std::string LBRACKET = "(";
+	const std::string RBRACKET = ")";
+	const std::string LSQUARE = "[";
+	const std::string RSQUARE = "]";
+	const std::string COMMA = ",";
 
 	// MISC
 	const std::string TRUE = "TRUE";
 	const std::string FALSE = "FALSE";
 	const std::string END_OF_FILE = "EOF";
+}
+
+namespace AST_Nodes
+{
+	
 }
 
 #endif

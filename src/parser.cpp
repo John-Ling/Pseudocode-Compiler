@@ -449,143 +449,108 @@ int Parser::function_parameter(void)
 // <primary ::= <primitive-literal> | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | ( <expression> )
 // <function-call-parameter> ::= <expression> , <function-call-parameter> | <expression>
 
-int Parser::expression(void) // expression parsing tip when the parser finishes an expression the pointer will be located at the token that finished the expression
+Node Parser::expression(void) // when the parser finishes an expression the pointer will be located at the token that finished the expression
 {
     //<expression> ::= <equality>
-
-    if (logical_comparison() == 1)
-    {
-        return 1;
-    }
-    return 0;
+    return logical_comparison();
 }
 
-int Parser::logical_comparison(void)
+Node Parser::logical_comparison(void)
 {
-    if (equality() == 1)
-    {
-        return 1;
-    }
+    Node expression = equality();
 
     while (peek(Tokens::AND) || peek(Tokens::OR))
     {
         advance();
+        Token logicalOperator = this->tokens[this->pointer];
         advance();
-        if (equality() == 1)
-        {
-            return 1;
-        }
+        Node rightExpression = equality();
+        expression = Binary_Expression(expression, rightExpression, logicalOperator);
     }
-    return 0;
+    return expression;
 }
 
-int Parser::equality(void)
+Node Parser::equality(void)
 {
-    if (numerical_comparison() == 1)
-    {
-        return 1;
-    }
+    Node expression = numerical_comparison();
 
     while (peek(Tokens::EQUAL) || peek(Tokens::NOT_EQUAL))
     {
         advance();
+        Token logicalOperator = this->tokens[this->pointer];
         advance();
-        if (numerical_comparison() == 1)
-        {
-            return 1;
-        }
+        Node rightExpression = numerical_comparison();
+        expression = Binary_Expression(expression, rightExpression, logicalOperator);
     }
-    // add equality node
-    return 0;
+
+    return expression;
 }
 
-int Parser::numerical_comparison(void)
+Node Parser::numerical_comparison(void)
 {
-    if (term() == 1)
-    {
-        return 1;
-    }
+    Node expression = term();
 
     while (peek(Tokens::GREATER) || peek(Tokens::GREATER_EQUAL) || peek(Tokens::LESSER) || peek(Tokens::LESSER_EQUAL))
     {
         advance();
-        std::cout << this->tokens[this->pointer].type << '\n';
+        Token logicalOperator = this->tokens[this->pointer];
         advance();
-        std::cout << this->tokens[this->pointer].type << '\n';
-        if (term() == 1)
-        {
-            return 1;
-        }
+        Node rightExpression = term();
+        expression = Binary_Expression(expression, rightExpression, logicalOperator);
     }
-    // add comparison node
-    return 0;
+    return expression;
 }
 
-int Parser::term(void)
+Node Parser::term(void)
 {
-    if (factor() == 1)
-    {
-        return 1;
-    }
+    Node expression = factor();
 
     while (peek(Tokens::ADDITION) || peek(Tokens::SUBTRACTION))
     {
-        Token expressionOperator(this->tokens[this->pointer + 1].type, this->tokens[this->pointer + 1].value); // save operator
-        advance();                                                                                             // skip over addition and subtraction to form next expression
+        advance(); // skip over addition and subtraction to form next expression
+        Token logicalOperator = this->tokens[this->pointer];
         advance();
-        if (factor() == 1)
-        {
-            return 1;
-        }
+        Node rightExpression = factor();
+        expression = Binary_Expression(expression, rightExpression, logicalOperator);
     }
-    // add term node
-    return 0;
+    return expression;
 }
 
-int Parser::factor(void)
+Node Parser::factor(void)
 {
-    if (unary() == 1)
-    {
-        return 1;
-    }
+    Node expression = unary();
 
     while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION))
     {
         advance();
+        Token logicalOperator = this->tokens[this->pointer];
         advance();
-        if (unary() == 1)
-        {
-            return 1;
-        }
+        Node rightExpression = unary();
+        expression = Binary_Expression(expression, rightExpression, logicalOperator);
     }
-    // add factor node
-    return 0;
+    return expression;
 }
 
-int Parser::unary(void)
+Node Parser::unary(void)
 {
     if (match(Tokens::SUBTRACTION) || match(Tokens::NOT))
     {
+        Token unaryOperator = this->tokens[this->pointer];
         advance();
-        // add unary node
-        return unary();
-    }
-    else if (primary() == 0)
-    {
-        return 0;
+        return Unary_Expression(unary(), unaryOperator); // create and return unary expression
     }
     else
     {
-        return 1;
+        return primary();
     }
 }
 
-int Parser::primary(void)
+Node Parser::primary(void)
 {
 
     if (primitive_literal() == 0)
     {
-        return 0;
+        return Literal(this->tokens[this->pointer]);
     }
     else if (match(Tokens::IDENTIFIER))
     {
@@ -602,7 +567,7 @@ int Parser::primary(void)
         else
         {
             backtrack();
-            return 0;
+            return Literal(this->tokens[this->pointer]);
         }
     }
     else if (match(Tokens::LBRACKET))
@@ -657,10 +622,6 @@ int Parser::variable_assignment(void)
     }
 
     advance();
-    if (expression() == 1)
-    {
-        return 1;
-    }
     return 0;
 }
 

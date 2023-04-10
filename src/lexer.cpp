@@ -27,19 +27,25 @@ int Lexer::generate_tokens(void)
     // add final EOF token
     Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
     this->tokens.push_back(token);
+
+    for (int i = 0; i < this->tokens.size(); i++)
+    {
+        std::cout << this->tokens[i].type << " " << this->tokens[i].value << '\n';
+    }
+
     return 0;
 }
 
 void Lexer::tokenize_line(std::string line)
 {
-    const char WHITESPACE = ' ';
+    const std::string WHITESPACE = " ";
     this->currentLine = line;
     advance();
     
     while (this->position != -1) // read until end of line
     {
-        char character = this->currentLine[this->position];
-        if (this->SYMBOLS_TO_TOKENS.count(character)) // common single character tokens such as brackets, commas, colons etc
+        std::string character = {this->currentLine[this->position]};
+        if (this->KEYWORDS_TO_TOKENS.count(character)) // common single character tokens such as brackets, commas, colons etc
         {
             Token token = lookahead(character);
             this->tokens.push_back(token);
@@ -54,7 +60,7 @@ void Lexer::tokenize_line(std::string line)
             Token token = get_numerical_literal();
             this->tokens.push_back(token);
         }
-        else if (character == '"')
+        else if (character == "\"")
         {
             Token token = get_string_literal();
             this->tokens.push_back(token);
@@ -63,7 +69,7 @@ void Lexer::tokenize_line(std::string line)
     }
 }
 
-Token Lexer::lookahead(char character)
+Token Lexer::lookahead(std::string character)
 {
     // "peeks" at the next two character to take the valid maximal munch of a potential token
     // when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
@@ -72,7 +78,7 @@ Token Lexer::lookahead(char character)
     {
         int offset = 2; // how many places to backtrack if a double or triple letter operator cannot be formed
         std::string largestOperator = {character};
-        Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+        Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
 
         for (int i = 1; i <= 2; i++) // look two steps ahead to match double or triple letter operators
         {
@@ -92,7 +98,7 @@ Token Lexer::lookahead(char character)
         this->position -= offset;
         return token;
     }
-    Token token(this->SYMBOLS_TO_TOKENS.at(character), character);
+    Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
     return token;
 }
 
@@ -110,13 +116,13 @@ bool Lexer::is_valid_identifier(std::string value)
 {
     const char WHITESPACE = ' ';
     
-    if (is_integer(value[0]))
+    if (is_integer({value[0]}))
     {
         return false;
     }
     for (int i = 0; i < value.length(); i++)
     {
-        if (!is_alphanumeric(value[i]) || value[i] == WHITESPACE)
+        if (!is_alphanumeric({value[i]}) || value[i] == WHITESPACE)
         {
             return false;
         }
@@ -126,10 +132,10 @@ bool Lexer::is_valid_identifier(std::string value)
 
 Token Lexer::get_keyword_or_identifier(void)
 {
-    Token token;
+    Token token = Token();
     std::string buffer = {this->currentLine[this->position]};
     advance();
-    while (is_alphanumeric(this->currentLine[this->position]) && this->position != -1)
+    while (is_alphanumeric({this->currentLine[this->position]}) && this->position != -1)
     {
         buffer = buffer + this->currentLine[this->position];
         advance();
@@ -160,10 +166,10 @@ Token Lexer::get_numerical_literal(void)
     // get either a float or integer literal depending on the presence of a decimal point
     std::string type = Tokens::INTEGER_LITERAL;
     std::string number;
-    char character = this->currentLine[this->position];
-    while ((is_integer(character) || character == '.') && this->position != -1)
+    std::string character = {this->currentLine[this->position]};
+    while ((is_integer(character) || character == ".") && this->position != -1)
     {
-        if (character == '.')
+        if (character == ".")
         {
             type = Tokens::FLOAT_LITERAL;
         }
@@ -176,7 +182,7 @@ Token Lexer::get_numerical_literal(void)
     return token;
 }
 
-Token Lexer::get_string_literal()
+Token Lexer::get_string_literal(void)
 {
     // read up to ending character ) and create a string literal
     char character = this->currentLine[this->position];
@@ -195,24 +201,27 @@ Token Lexer::get_string_literal()
     return token;
 }
 
-bool Lexer::is_integer(char character)
+bool Lexer::is_integer(std::string character)
 {
+    char convertedCharacter = character[0];
     const int ASCII_0 = 48;
     const int ASCII_9 = 57;
-    if ((int)character >= ASCII_0 && (int)character <= ASCII_9)
+    int ascii = (int)convertedCharacter;
+    if (ascii >= ASCII_0 && ascii <= ASCII_9)
     {
         return true;
     }
     return false;
 }
 
-bool Lexer::is_letter(char character)
+bool Lexer::is_letter(std::string character)
 {
+    char convertedCharacter = character[0];
     const int ASCII_MIN_LOWER = 97;
     const int ASCII_MIN_UPPER = 65;
     const int ASCII_MAX_LOWER = 122;
     const int ASCII_MAX_UPPER = 90;
-    int ascii = (int)character;
+    int ascii = (int)convertedCharacter;
 
     if ((ascii >= ASCII_MIN_LOWER && ascii <= ASCII_MAX_LOWER) || (ascii >= ASCII_MIN_UPPER && ascii <= ASCII_MAX_UPPER))
     {
@@ -221,9 +230,10 @@ bool Lexer::is_letter(char character)
     return false;
 }
 
-bool Lexer::is_alphanumeric(char character)
+bool Lexer::is_alphanumeric(std::string character)
 {
     // checks if letter is character from a-z or A-Z or 0-9
+    char convertedCharacter = character[0];
     const int ASCII_MIN_LOWER = 97;
     const int ASCII_MIN_UPPER = 65;
     const int ASCII_MAX_LOWER = 122;
@@ -231,7 +241,7 @@ bool Lexer::is_alphanumeric(char character)
     const int ASCII_0 = 48;
     const int ASCII_9 = 57;
 
-    int ascii = (int)character;
+    int ascii = (int)convertedCharacter;
     if ((ascii >= ASCII_MIN_LOWER && ascii <= ASCII_MAX_LOWER) || (ascii >= ASCII_MIN_UPPER && ascii <= ASCII_MAX_UPPER) || (ascii >= ASCII_0 && ascii <= ASCII_9))
     {
         return true;
