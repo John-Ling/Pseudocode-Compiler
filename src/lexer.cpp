@@ -21,17 +21,19 @@ int Lexer::generate_tokens(void)
         std::getline(fileReader, line);
         if (line != "")
         {
-            tokenize_line(line);
+            try
+            {
+                tokenize_line(line);
+            }
+            catch(Lexical_Error e)
+            {
+                e.display_problem(line);
+            }
         }
     }
     // add final EOF token
     Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
     this->tokens.push_back(token);
-
-    for (int i = 0; i < this->tokens.size(); i++)
-    {
-        std::cout << this->tokens[i].type << " " << this->tokens[i].value << '\n';
-    }
 
     return 0;
 }
@@ -64,6 +66,10 @@ void Lexer::tokenize_line(std::string line)
         {
             Token token = get_string_literal();
             this->tokens.push_back(token);
+        }
+        else
+        {
+            throw Lexical_Error();
         }
         advance();
     }

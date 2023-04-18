@@ -17,11 +17,11 @@ int Compiler::compile(void)
         return 1;
     }
     // Parsing
-    Parser parser(lexer.tokens);
-	int parsingProcess = parser.parse_tokens();
-    if (parsingProcess == 1)
-    {
-        return 1;
-    }
+    // Parser parser(lexer.tokens);
+	// int parsingProcess = parser.parse_tokens();
+    // if (parsingProcess == 1)
+    // {
+    //     return 1;
+    // }
     return 0;
 }

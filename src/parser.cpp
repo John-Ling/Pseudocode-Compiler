@@ -10,9 +10,18 @@ int Parser::parse_tokens(void)
 {
     while (this->pointer != -1)
     {
-        if (statement() == 1)
+        try
         {
-            return 1;
+            Node* statementNode = statement();
+            this->nodes.push_back(statementNode);
+        }
+        catch(Parse_Error e)
+        {
+            throw Parse_Error();
+        }
+        catch(Reached_End_Of_File e)
+        {
+            break;
         }
         advance();
     }
@@ -55,13 +64,7 @@ void Parser::advance(void)
     return;
 }
 
-void Parser::backtrack(void)
-{
-    this->pointer--;
-    return;
-}
-
-int Parser::statement(void)
+Node* Parser::statement(void)
 {
     if (match(Tokens::OUTPUT))
     {
@@ -109,7 +112,7 @@ int Parser::statement(void)
     }
     else if (match(Tokens::END_OF_FILE))
     {
-        return 0;
+        throw Reached_End_Of_File();
     }
     else
     {
@@ -118,56 +121,62 @@ int Parser::statement(void)
     }
 }
 
-int Parser::primitive_literal(void)
+Node* Parser::primitive_literal(void)
 {
-
     if (match(Tokens::INTEGER_LITERAL) ||
-        match(Tokens::FLOAT_LITERAL) ||
-        match(Tokens::STRING_LITERAL) ||
+        match(Tokens::FLOAT_LITERAL)   ||
+        match(Tokens::STRING_LITERAL)  ||
         match(Tokens::BOOLEAN_LITERAL))
     {
-        return 0;
+        return new Literal(this->tokens[this->pointer]);
     }
-    return 1;
+    throw Parse_Error();
 }
 
-int Parser::primitive_type(void)
+Node* Parser::primitive_type(void)
 {
     if (match(Tokens::INTEGER) ||
-        match(Tokens::STRING) ||
+        match(Tokens::STRING)  ||
         match(Tokens::BOOLEAN) ||
         match(Tokens::FLOAT))
     {
-        return 0;
+        return new Primitive(this->tokens[this->pointer]);
     }
-    return 1;
+    throw Parse_Error();
 }
 
-int Parser::variable_declaration(void)
+Node* Parser::variable_declaration(void)
 {
     // <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
     if (!match(Tokens::IDENTIFIER))
     {
-        return 1;
+        throw Parse_Error();
     }
+    Token identifier = this->tokens[this->pointer];
     advance();
 
     if (!match(Tokens::COLON))
     {
-        return 1;
+        throw Parse_Error();
     }
     advance();
 
-    if (primitive_type() == 1)
+    try
     {
-        return 1;
+        Node* primitive = primitive_type();
+        return new Variable_Declaration(identifier, primitive);
     }
-    return 0;
+    catch(Parse_Error e)
+    {
+        throw Parse_Error();
+    }
 }
 
 int Parser::output(void)
 {
     // <output> ::= [OUTPUT] <expression> (, <expression>)*
+    Node* expressionNode = expression();
+    
     if (expression() == 1)
     {
         return 1;
@@ -310,16 +319,12 @@ int Parser::while_(void)
     return 0;
 }
 
-int Parser::return_(void)
+Node* Parser::return_(void)
 {
     // <return> ::= [RETURN] <expression>
-    if (expression() == 1)
-    {
-        return 1;
-    }
-    return 0;
+    Node* expressionNode = expression();
+    return new Return(expressionNode); 
 }
-
 int Parser::function(void)
 {
     // <function> ::= [FUNCTION] [IDENTIFIER] ( <function-parameter> [RETURNS] <primitive-type> <statement> [ENDFUNCTION]
@@ -449,95 +454,95 @@ int Parser::function_parameter(void)
 // <primary ::= <primitive-literal> | [IDENTIFIER] ( <function-call-parameter> ) | [IDENTIFIER] | ( <expression> )
 // <function-call-parameter> ::= <expression> , <function-call-parameter> | <expression>
 
-Node Parser::expression(void) // when the parser finishes an expression the pointer will be located at the token that finished the expression
+Node* Parser::expression(void) // when the parser finishes an expression the pointer will be located at the token that finished the expression
 {
     //<expression> ::= <equality>
     return logical_comparison();
 }
 
-Node Parser::logical_comparison(void)
+Node* Parser::logical_comparison(void)
 {
-    Node expression = equality();
+    Node* expression = equality();
 
     while (peek(Tokens::AND) || peek(Tokens::OR))
     {
         advance();
-        Token logicalOperator = this->tokens[this->pointer];
+        Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = equality();
-        expression = Binary_Expression(expression, rightExpression, logicalOperator);
+        Node* rightExpression = equality();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::equality(void)
+Node* Parser::equality(void)
 {
-    Node expression = numerical_comparison();
+    Node* expression = numerical_comparison();
 
     while (peek(Tokens::EQUAL) || peek(Tokens::NOT_EQUAL))
     {
         advance();
-        Token logicalOperator = this->tokens[this->pointer];
+        Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = numerical_comparison();
-        expression = Binary_Expression(expression, rightExpression, logicalOperator);
+        Node* rightExpression = numerical_comparison();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
 
     return expression;
 }
 
-Node Parser::numerical_comparison(void)
+Node* Parser::numerical_comparison(void)
 {
-    Node expression = term();
+    Node* expression = term();
 
     while (peek(Tokens::GREATER) || peek(Tokens::GREATER_EQUAL) || peek(Tokens::LESSER) || peek(Tokens::LESSER_EQUAL))
     {
         advance();
-        Token logicalOperator = this->tokens[this->pointer];
+        Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = term();
-        expression = Binary_Expression(expression, rightExpression, logicalOperator);
+        Node* rightExpression = term();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::term(void)
+Node* Parser::term(void)
 {
-    Node expression = factor();
+    Node* expression = factor();
 
     while (peek(Tokens::ADDITION) || peek(Tokens::SUBTRACTION))
     {
         advance(); // skip over addition and subtraction to form next expression
-        Token logicalOperator = this->tokens[this->pointer];
+        Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = factor();
-        expression = Binary_Expression(expression, rightExpression, logicalOperator);
+        Node* rightExpression = factor();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::factor(void)
+Node* Parser::factor(void)
 {
-    Node expression = unary();
+    Node* expression = unary();
 
     while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION))
     {
         advance();
-        Token logicalOperator = this->tokens[this->pointer];
+        Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = unary();
-        expression = Binary_Expression(expression, rightExpression, logicalOperator);
+        Node* rightExpression = unary();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::unary(void)
+Node* Parser::unary(void)
 {
     if (match(Tokens::SUBTRACTION) || match(Tokens::NOT))
     {
         Token unaryOperator = this->tokens[this->pointer];
         advance();
-        return Unary_Expression(unary(), unaryOperator); // create and return unary expression
+        return new Unary_Expression(unary(), unaryOperator); // create and return unary expression
     }
     else
     {
@@ -545,12 +550,11 @@ Node Parser::unary(void)
     }
 }
 
-Node Parser::primary(void)
+Node* Parser::primary(void)
 {
-
     if (primitive_literal() == 0)
     {
-        return Literal(this->tokens[this->pointer]);
+        return new Literal(this->tokens[this->pointer]);
     }
     else if (match(Tokens::IDENTIFIER))
     {
@@ -558,16 +562,16 @@ Node Parser::primary(void)
         if (match(Tokens::LBRACKET))
         {
             advance();
-            return function_call_parameter();
+            return new function_call_parameter();
         }
-        if (variable_assignment() == 0)
+
+        try
         {
-            return 0;
+            return new variable_assignment();
         }
-        else
+        catch(Parse_Error e)
         {
-            backtrack();
-            return Literal(this->tokens[this->pointer]);
+            return new Literal(this->tokens[this->pointer]);
         }
     }
     else if (match(Tokens::LBRACKET))
@@ -613,12 +617,12 @@ int Parser::function_call_parameter(void)
     }
 }
 
-int Parser::variable_assignment(void)
+Node* Parser::variable_assignment(void)
 {
     // <variable-assignment> ::= [IDENTIFIER] [ASSIGNMENT] <expression>
     if (!match(Tokens::ASSIGNMENT))
     {
-        return 1;
+        throw Parse_Error();
     }
 
     advance();

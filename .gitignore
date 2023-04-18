@@ -3,4 +3,5 @@ test.*
 main
 src/test.*
 include/test.*
+bin/*
 build/*
