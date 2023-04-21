@@ -1,14 +1,20 @@
 #include "exceptions.h"
 
-void Lexical_Error::display_problem(std::string errorLine)
+void Lexical_Error::display_problem(void)
 {
-    std::cout << "Lexical Error: Error performing lexical analysis on line " << errorLine << '\n';
+    std::cout << "Lexical Error: Error performing lexical analysis on line " << this->errorLine << '\n';
     return;
 }
 
-void Parse_Error::display_problem(std::string errorLine)
+void Unexpected_Parsing_Input::display_problem(void)
 {
-    std::cout << "Parsing Error: Unable to parse line " << errorLine << '\n';
+    std::cout << "Parsing Error: Expected " << this->expected << " but received " << this->received << '\n';
+    return;
+}
+
+void Missed_Terminating_Token::display_problem(void)
+{
+    std::cout << "Missed Terminating Token Error: Expected " << this->expected << '\n';
     return;
 }
 

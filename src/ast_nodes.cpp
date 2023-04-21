@@ -3,75 +3,112 @@
 void Node::set_name(std::string value)
 {
     this->NAME = value;
-};
+}
 
-Literal::Literal(Token value)
+std::string Node::get_node_name(void)
+{
+    return this->NAME;
+}
+
+Literal::Literal(Token token)
 {
     set_name(AST_Node_Names::LITERAL);
-    this->value = value;
+    this->value = token.value;
+    this->type = token.type;
 }
 
-Identifier::Identifier(std::string identifierName)
+Identifier::Identifier(Token token)
 {
     set_name(AST_Node_Names::IDENTIFIER);
-    this->identifierName = identifierName;
+    this->variableName = token.value;
 }
 
-Primitive::Primitive(Token value)
+std::string Identifier::get_variable_name(void) 
+{ 
+    return this->variableName; 
+}
+
+Primitive::Primitive(Token token)
 {
     set_name(AST_Node_Names::PRIMITIVE);
-    this->value = value;
+    this->type = token.type;
 }
 
-Variable_Declaration::Variable_Declaration(Token identifier, Node* type)
+Variable_Declaration::Variable_Declaration(Identifier identifier, Primitive type)
 {
     set_name(AST_Node_Names::DECLARATION);
     this->identifier = identifier;
     this->type = type;
 }
 
-Variable_Assignment::Variable_Assignment(Token identifier, Node* expression)
+Variable_Assignment::Variable_Assignment(Identifier identifier, Node expression)
 {
     set_name(AST_Node_Names::ASSIGNMENT);
     this->identifier = identifier;
     this->expression = expression;
 }
 
-Output::Output(std::vector<Node*> expressions)
+Output::Output(std::vector<Node> expressions)
 {
     set_name(AST_Node_Names::OUTPUT);
     this->expressions = expressions;
 }
 
-Input::Input(Token identifier)
+Input::Input(Identifier identifier)
 {
     set_name(AST_Node_Names::INPUT);
     this->identifier = identifier;
 }
 
-Function::Function(Node* functionName, Token returnType, Node* parameters, std::vector<Node*> statements)
+Function::Function(Identifier functionName, Primitive returnType, Function_Arguments arguments, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::FUNCTION);
     this->functionName = functionName;
     this->returnType = returnType;
-    this->parameters = parameters;
+    this->arguments = arguments;
     this->statements = statements;
 }
 
-Return::Return(Node* expression)
+Function_Arguments::Function_Arguments(void)
+{
+    set_name(AST_Node_Names::FUNCTION_ARGUMENTS);
+}
+
+Function_Call::Function_Call(Identifier functionName, Call_Arguments arguments)
+{
+    this->functionName = functionName;
+    this->arguments = arguments;
+}
+
+void Call_Arguments::add_argument(Node expression)
+{
+    this->arguments.push_back(expression); 
+}
+
+void Function_Arguments::add_argument(Identifier identifier, Primitive type)
+{
+    std::string identifierName = identifier.get_variable_name();
+    if (this->arguments.count(identifierName)) 
+    {
+        this->arguments[identifierName] = type; 
+    }
+    return;
+}
+
+Return::Return(Node expression)
 {
     set_name(AST_Node_Names::RETURN);
     this->expression = expression;
 }
 
-While::While(Node* condition, std::vector<Node*> statements)
+While::While(Node condition, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::WHILE);
     this->condition = condition;
     this->statements = statements;
 }
 
-For::For(int start, int end, int step, Node* indexVariable, std::vector<Node*> statements)
+For::For(Node start, Node end, Node* step, Identifier indexVariable, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::FOR);
     this->start = start;
@@ -81,21 +118,31 @@ For::For(int start, int end, int step, Node* indexVariable, std::vector<Node*> s
     this->statements = statements;
 }
 
-If::If(Node* condition, std::vector<Node*> statements, Node* elseNode)
+If::If(Node condition, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::IF);
     this->condition = condition;
     this->statements = statements;
     this->elseNode = elseNode;
+    this->elseNodePresent = false;
 }
 
-Else::Else(std::vector<Node*> statements)
+If::If(Node condition, std::vector<Node> statements, Else elseNode)
+{
+    set_name(AST_Node_Names::IF);
+    this->condition = condition;
+    this->statements = statements;
+    this->elseNode = elseNode;
+    this->elseNodePresent = true;
+}
+
+Else::Else(std::vector<Node> statements)
 {
     set_name(AST_Node_Names::ELSE);
     this->statements = statements;
 }
 
-Binary_Expression::Binary_Expression(Node* left, Token operation, Node* right)
+Binary_Expression::Binary_Expression(Node left, Token operation, Node right)
 {
     set_name(AST_Node_Names::BINARY_EXPRESSION);
     this->left = left;
@@ -103,10 +150,9 @@ Binary_Expression::Binary_Expression(Node* left, Token operation, Node* right)
     this->right = right;
 }
 
-Unary_Expression::Unary_Expression(Node* expression, Token operation)
+Unary_Expression::Unary_Expression(Node expression, Token operation)
 {
     set_name(AST_Node_Names::UNARY_EXPRESSION);
     this->expression = expression;
     this->operation = operation;
 }
-

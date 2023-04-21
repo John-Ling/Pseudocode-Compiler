@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace Keywords // modify to change the keyword for a specific action i.e change "RETURN" to "wumbo" to make "wumbo" the return keyword
+namespace Keywords // modify to change the keyword for a specific action i.e change "RETURN" to "wumbo" to make "wumbo" the return keyword.
 {
 	// PSEUDOCODE KEYWORDS
 	const std::string FUNCTION = "FUNCTION";
@@ -59,7 +59,7 @@ namespace Keywords // modify to change the keyword for a specific action i.e cha
 
 
 // TOKEN KEYWORDS
-namespace Tokens // I wouldn't touch these
+namespace Tokens // Internal token names for compiler to use. I wouldn't touch these.
 {
 	const std::string FUNCTION = "[FUNCTION]";
 	const std::string WHILE = "[WHILE]";
@@ -118,7 +118,7 @@ namespace Tokens // I wouldn't touch these
 	const std::string END_OF_FILE = "[EOF]";
 }
 
-namespace AST_Node_Names // I wouldn't touch these
+namespace AST_Node_Names // Internal node names for abstract syntax tree. I wouldn't touch these.
 {
 	const std::string FUNCTION = "function";
 	const std::string WHILE = "while";
@@ -135,6 +135,7 @@ namespace AST_Node_Names // I wouldn't touch these
 	const std::string INPUT = "input";
 	const std::string BINARY_EXPRESSION = "binary_expression";
 	const std::string UNARY_EXPRESSION = "unary_expression";
+	const std::string FUNCTION_ARGUMENTS = "function_arguments";
 }
 
 #endif

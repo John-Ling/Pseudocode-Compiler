@@ -4,6 +4,7 @@
 
 #include "lexer.h"
 #include "parser.h"
+
 class Compiler
 {    
     private:

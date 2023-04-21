@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <stdlib.h>
 
 #include "token.h"
 #include "constants.h"
@@ -27,6 +28,7 @@ class Lexer
 			{Keywords::RSQUARE, Tokens::RSQUARE}, {Keywords::COMMA, Tokens::COMMA}};
 		std::string sourceFile;
 		std::string currentLine;
+		std::vector<std::string> sourceFileLines;
 		int position;
 		void tokenize_line(std::string line);
 		void advance(void);
@@ -43,6 +45,7 @@ class Lexer
 		Lexer(std::string filename);
 		int generate_tokens(void);
 		std::vector<Token> tokens;
+		std::vector<std::string> get_source_file_lines(void);
 };
 
 #endif

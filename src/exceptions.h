@@ -7,19 +7,45 @@
 class Error
 {
     public:
-        virtual void display_problem(std::string errorLine) = 0;
+        virtual void display_problem(void) = 0;
 };
 
 class Lexical_Error: Error
 {
+    private:
+        std::string errorLine;
     public:
-        void display_problem(std::string errorLine);
+        Lexical_Error(std::string errorLine);
+        void display_problem(void);
 };
 
-class Parse_Error: Error
+class Unexpected_Parsing_Input: Error
 {
+    private:
+        std::string received;
+        std::string expected;
     public:
-        void display_problem(std::string errorLine);
+        Unexpected_Parsing_Input(std::string received, std::string expected);
+        void display_problem(void);
+};
+
+class Wrong_AST_Type: Error
+{
+    private:
+        std::string received;
+    public:
+        Wrong_AST_Type(std::string received);
+        void display_problem(void);
+        std::string get_received(void);
+};
+
+class Missed_Terminating_Token: Error
+{
+    private:
+        std::string expected;
+    public:
+        Missed_Terminating_Token(std::string expected);
+        void display_problem(void);
 };
 
 class Type_Error: Error

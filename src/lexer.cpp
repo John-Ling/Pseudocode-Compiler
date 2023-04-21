@@ -6,6 +6,11 @@ Lexer::Lexer(std::string filename)
     this->position = -1; // index for characters in each line of file
 }
 
+std::vector<std::string> Lexer::get_source_file_lines(void)
+{
+    return this->sourceFileLines;
+}
+
 int Lexer::generate_tokens(void)
 {
     // open file 
@@ -19,6 +24,7 @@ int Lexer::generate_tokens(void)
     {
         std::string line;
         std::getline(fileReader, line);
+        this->sourceFileLines.push_back(line);
         if (line != "")
         {
             try
@@ -27,7 +33,8 @@ int Lexer::generate_tokens(void)
             }
             catch(Lexical_Error e)
             {
-                e.display_problem(line);
+                e.display_problem();
+                exit(1);
             }
         }
     }
@@ -69,7 +76,7 @@ void Lexer::tokenize_line(std::string line)
         }
         else
         {
-            throw Lexical_Error();
+            throw Lexical_Error(this->currentLine);
         }
         advance();
     }
