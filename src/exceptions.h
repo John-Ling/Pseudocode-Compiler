@@ -3,14 +3,26 @@
 
 #include <iostream>
 #include <string>
+#include "constants.h"
 
 class Error
 {
+    private:
+        std::string TYPE;
     public:
         virtual void display_problem(void) = 0;
+        std::string get_type(void);
+        void set_type(std::string type);
 };
 
-class Lexical_Error: Error
+class Generic_Error: public Error
+{
+    public:
+        Generic_Error(void);
+        void display_problem(void);
+};
+
+class Lexical_Error: public Error
 {
     private:
         std::string errorLine;
@@ -19,7 +31,7 @@ class Lexical_Error: Error
         void display_problem(void);
 };
 
-class Unexpected_Parsing_Input: Error
+class Unexpected_Parsing_Input: public Error
 {
     private:
         std::string received;
@@ -29,17 +41,7 @@ class Unexpected_Parsing_Input: Error
         void display_problem(void);
 };
 
-class Wrong_AST_Type: Error
-{
-    private:
-        std::string received;
-    public:
-        Wrong_AST_Type(std::string received);
-        void display_problem(void);
-        std::string get_received(void);
-};
-
-class Missed_Terminating_Token: Error
+class Missed_Terminating_Token: public Error
 {
     private:
         std::string expected;
@@ -48,13 +50,11 @@ class Missed_Terminating_Token: Error
         void display_problem(void);
 };
 
-class Type_Error: Error
+class Reached_End_Of_File: public Error  // signal to end the parsing process
 {
     public:
-        void display_problem(std::string errorLine);
+        Reached_End_Of_File(void);
+        void display_problem(void);
 };
-
-class Reached_End_Of_File {}; // signal to end parsing process
-
 
 #endif

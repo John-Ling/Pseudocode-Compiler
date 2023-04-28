@@ -6,38 +6,38 @@ Parser::Parser(std::vector<Token> tokens)
     this->pointer = 0;
 }
 
-
 // main 
 int Parser::parse_tokens(void)
 {
-    while (this->pointer != -1)
+    while (this->pointer != -1 && this->tokens[this->pointer].type != Tokens::END_OF_FILE)
     {
+        if (this->tokens[this->pointer].type == Tokens::END_OF_LINE)
+        {
+            std::cout << "Reached end of line\n";
+            advance();
+            continue;
+        }
+
         try
         {
             Node statementNode = statement();
             this->nodes.push_back(statementNode);
         }
-        catch(Unexpected_Parsing_Input const &e)
+        catch(Error &e)
         {
             e.display_problem();
             exit(1);
-        }
-        catch(Reached_End_Of_File &e)
-        {
-            break;
         }
         advance();
     }
     return 0;
 }
 
-
 // helper functions
-
 bool Parser::compare(std::string tokenType)
 {
     bool matched = false;
-    if (this->pointer != -1 && this->pointer < this->tokens.size() && this->tokens[this->pointer].type == tokenType)
+    if (this->pointer != -1 && this->pointer < (int)this->tokens.size() && this->tokens[this->pointer].type == tokenType)
     {
         matched = true;
     }
@@ -53,7 +53,7 @@ void Parser::match(std::string tokenType) // similar to compare() but throws a U
 bool Parser::peek(std::string tokenType) // matches the next token with tokenType and advances if matched successfully
 {
     bool matched = false;
-    if (this->pointer + 1 < this->tokens.size())
+    if (this->pointer + 1 < (int)this->tokens.size())
     {
         if (this->tokens[this->pointer + 1].type == tokenType)
         {
@@ -70,7 +70,7 @@ bool Parser::peek(std::string tokenType) // matches the next token with tokenTyp
 
 void Parser::advance(void)
 {
-    if (this->pointer == -1 || this->pointer + 1 >= this->tokens.size())
+    if (this->pointer == -1 || this->pointer + 1 >= (int)this->tokens.size())
     {
         this->pointer = -1;
     }
@@ -86,80 +86,82 @@ void Parser::advance(void)
 Node Parser::statement(void)
 {
     Node statement;
+    std::cout << "Token into statement(): " << this->tokens[this->pointer].type << '\n';
     if (compare(Tokens::OUTPUT))
     {
         // generate an output node
         advance();
-        statement = output();
+        return output();
     }
     else if (compare(Tokens::FUNCTION))
     {
         // generate a function declaration node
         advance();
-        statement = function();
+        return function();
     }
     else if (compare(Tokens::DECLARE))
     {
         // generate a variable declaration node
         advance();
-        statement = variable_declaration();
+        return variable_declaration();
     }
     else if (compare(Tokens::INPUT))
     {
         // generate an input node
         advance();
-        statement = input();
+        return input();
     }
     else if (compare(Tokens::FOR))
     {
         advance();
-        statement = for_();
+        return for_();
     }
     else if (compare(Tokens::RETURN))
     {
         advance();
-        statement = return_();
+        return return_();
     }
     else if (compare(Tokens::WHILE))
     {
         advance();
-        statement = while_();
+        return while_();
     }
     else if (compare(Tokens::IF))
     {
         advance();
-        statement = if_();
-    }
-    else if (compare(Tokens::END_OF_FILE))
-    {
-        throw Reached_End_Of_File();
+        return if_();
     }
     else
     {
         // attempt to generate a standalone expression node
-        statement = expression();
+        return expression();
     }
-    return statement;
 }
 
 Literal Parser::primitive_literal(void)
 {
     const std::vector<std::string> LITERALS = {Tokens::INTEGER_LITERAL, Tokens::FLOAT_LITERAL, Tokens::STRING_LITERAL, Tokens::BOOLEAN_LITERAL};
-    for (int i = 0; i < LITERALS.size(); i++)
+    for (int i = 0; i < (int)LITERALS.size(); i++)
     {
-        match(LITERALS[i]);
+        if (compare(LITERALS[i]))
+        {
+            return Literal(this->tokens[this->pointer]);
+        }
     }
-    return Literal(this->tokens[this->pointer]);
+    throw Generic_Error();
 }
 
 Primitive Parser::primitive_type(void)
 {
     const std::vector<std::string> PRIMITIVES = {Tokens::INTEGER, Tokens::STRING, Tokens::BOOLEAN, Tokens::FLOAT};
-    for (int i = 0; i < PRIMITIVES.size(); i++)
+    for (int i = 0; i < (int)PRIMITIVES.size(); i++)
     {
-        match(PRIMITIVES[i]);
+        if (compare(PRIMITIVES[i]))
+        {
+            return Primitive(this->tokens[this->pointer]);
+        }
     }
-    return Primitive(this->tokens[this->pointer]);
+    throw Generic_Error();
 }
 
 Variable_Declaration Parser::variable_declaration(void)
@@ -168,8 +170,7 @@ Variable_Declaration Parser::variable_declaration(void)
     match(Tokens::IDENTIFIER);
     Identifier identifier = Identifier(this->tokens[this->pointer]);
     advance();
-
-    match(Tokens::COMMA);
+    match(Tokens::COLON);
     advance();
 
     Primitive primitive = primitive_type();
@@ -465,6 +466,7 @@ Node Parser::primary(void)
     if (compare(Tokens::IDENTIFIER))
     {
         Identifier identifier = Identifier(this->tokens[this->pointer]);
+        std::cout << this->tokens[this->pointer].type << '\n';
         if (peek(Tokens::LBRACKET)) // try form function call node
         {
             advance();
@@ -478,8 +480,12 @@ Node Parser::primary(void)
             Node assignmentExpression = expression();
             return Variable_Assignment(identifier, assignmentExpression);
         }
-
-        return Literal(this->tokens[this->pointer]); // return a regular literal
+        else if (peek(Tokens::END_OF_LINE))
+        {
+            return identifier; // return a regular literal
+        }
+        
+        throw Generic_Error();
     }
     else if (compare(Tokens::LBRACKET)) // attempt to form bracketed expression
     {
@@ -489,12 +495,16 @@ Node Parser::primary(void)
         match(Tokens::RBRACKET);
         return expressionNode;
     }
+    else
+    {
+        return primitive_literal();
+    }
 }
 
 Call_Arguments Parser::function_call_arguments(void)
 {
     // <function-call-parameter> ::= <expression> , <function-call-parameter> | )
-    Call_Arguments arguments = Call_Arguments();
+    Call_Arguments arguments;
     arguments.add_argument(expression());
     advance();
     while (!(compare(Tokens::COMMA) || compare(Tokens::RBRACKET)) && this->pointer != -1)
@@ -502,7 +512,7 @@ Call_Arguments Parser::function_call_arguments(void)
         arguments.add_argument(expression());
         advance();
     }
-    return Call_Arguments(arguments);
+    return arguments;
 }
 
 // END EXPRESSION //

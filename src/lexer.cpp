@@ -20,6 +20,7 @@ int Lexer::generate_tokens(void)
         return 1;
     }
     
+    int index = 0;
     while (fileReader)
     {
         std::string line;
@@ -31,7 +32,7 @@ int Lexer::generate_tokens(void)
             {
                 tokenize_line(line);
             }
-            catch(Lexical_Error e)
+            catch(Error &e)
             {
                 e.display_problem();
                 exit(1);
@@ -41,6 +42,11 @@ int Lexer::generate_tokens(void)
     // add final EOF token
     Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
     this->tokens.push_back(token);
+
+    for (int i = 0; i < (int)this->tokens.size(); i++)
+    {
+        std::cout << this->tokens[i].type << ' ' << this->tokens[i].value << '\n';
+    }
 
     return 0;
 }
@@ -74,12 +80,12 @@ void Lexer::tokenize_line(std::string line)
             Token token = get_string_literal();
             this->tokens.push_back(token);
         }
-        else
-        {
-            throw Lexical_Error(this->currentLine);
-        }
         advance();
     }
+    Token endOfLineToken;
+    endOfLineToken.type = Tokens::END_OF_LINE;
+    endOfLineToken.value = "";
+    this->tokens.push_back(endOfLineToken);
 }
 
 Token Lexer::lookahead(std::string character)
@@ -89,26 +95,26 @@ Token Lexer::lookahead(std::string character)
     // return generated token
     if (character == Keywords::LESSER || character == Keywords::GREATER) // in psuedocode there are only two characters with double or triple operators
     {
-        int offset = 2; // how many places to backtrack if a double or triple letter operator cannot be formed
+        const unsigned int LONGEST_OPERATOR_LENGTH = 3; // the assignment operator <-- is 3 characters long
+        int offset = 0; // determines how many characters the function skips over when completed as those characters combine into a single token
         std::string largestOperator = {character};
         Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
 
-        for (int i = 1; i <= 2; i++) // look two steps ahead to match double or triple letter operators
+        for (unsigned int i = 1; i < LONGEST_OPERATOR_LENGTH; i++) // look two steps ahead to match double or triple letter operators
         {
             if (this->position + i < this->currentLine.length())
             {
-                advance();
-                char nextCharacter = this->currentLine[this->position];
+                char nextCharacter = this->currentLine[this->position + i];
                 largestOperator = largestOperator + nextCharacter;
                 if (this->KEYWORDS_TO_TOKENS.count(largestOperator))
                 {
-                    token.type = this->KEYWORDS_TO_TOKENS.at(largestOperator);
+                    offset = i;
+                    token.type = this->KEYWORDS_TO_TOKENS.at(largestOperator); // generate token
                     token.value = largestOperator;
-                    offset--;
                 }
             }
         }
-        this->position -= offset;
+        this->position += offset;
         return token;
     }
     Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
@@ -118,7 +124,7 @@ Token Lexer::lookahead(std::string character)
 void Lexer::advance()
 {
     this->position++;
-    if (this->position >= this->currentLine.length() || this->position == -1) // check if reached end of line
+    if (this->position >= (int)this->currentLine.length() || this->position == -1) // check if reached end of line
     {
         this->position = -1;
     }
@@ -133,7 +139,7 @@ bool Lexer::is_valid_identifier(std::string value)
     {
         return false;
     }
-    for (int i = 0; i < value.length(); i++)
+    for (int i = 0; i < (int)value.length(); i++)
     {
         if (!is_alphanumeric({value[i]}) || value[i] == WHITESPACE)
         {

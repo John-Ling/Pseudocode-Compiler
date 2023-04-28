@@ -10,11 +10,21 @@ std::string Node::get_node_name(void)
     return this->NAME;
 }
 
+Literal::Literal(void) 
+{
+    set_name(AST_Node_Names::LITERAL);
+}
+
 Literal::Literal(Token token)
 {
     set_name(AST_Node_Names::LITERAL);
     this->value = token.value;
     this->type = token.type;
+}
+
+Identifier::Identifier(void) 
+{
+    set_name(AST_Node_Names::IDENTIFIER);
 }
 
 Identifier::Identifier(Token token)
@@ -26,6 +36,11 @@ Identifier::Identifier(Token token)
 std::string Identifier::get_variable_name(void) 
 { 
     return this->variableName; 
+}
+
+Primitive::Primitive(void)
+{
+    set_name(AST_Node_Names::PRIMITIVE);
 }
 
 Primitive::Primitive(Token token)
@@ -80,6 +95,11 @@ Function_Call::Function_Call(Identifier functionName, Call_Arguments arguments)
     this->arguments = arguments;
 }
 
+Call_Arguments::Call_Arguments(void)
+{
+    set_name(AST_Node_Names::CALL_ARGUMENTS);
+}
+
 void Call_Arguments::add_argument(Node expression)
 {
     this->arguments.push_back(expression); 
@@ -118,6 +138,11 @@ For::For(Node start, Node end, Node* step, Identifier indexVariable, std::vector
     this->statements = statements;
 }
 
+If::If(void)
+{
+    set_name(AST_Node_Names::IF);
+}
+
 If::If(Node condition, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::IF);
@@ -134,6 +159,11 @@ If::If(Node condition, std::vector<Node> statements, Else elseNode)
     this->statements = statements;
     this->elseNode = elseNode;
     this->elseNodePresent = true;
+}
+
+Else::Else(void)
+{
+    set_name(AST_Node_Names::ELSE);
 }
 
 Else::Else(std::vector<Node> statements)

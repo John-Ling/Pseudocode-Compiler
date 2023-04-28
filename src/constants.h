@@ -116,6 +116,7 @@ namespace Tokens // Internal token names for compiler to use. I wouldn't touch t
 
 	// Misc
 	const std::string END_OF_FILE = "[EOF]";
+	const std::string END_OF_LINE = "[EOL]";
 }
 
 namespace AST_Node_Names // Internal node names for abstract syntax tree. I wouldn't touch these.
@@ -136,6 +137,18 @@ namespace AST_Node_Names // Internal node names for abstract syntax tree. I woul
 	const std::string BINARY_EXPRESSION = "binary_expression";
 	const std::string UNARY_EXPRESSION = "unary_expression";
 	const std::string FUNCTION_ARGUMENTS = "function_arguments";
+	const std::string CALL_ARGUMENTS = "call_arguments";
+}
+
+namespace Exception_Types // Internal exception names for compile. I wouldn't touch these
+{
+	const std::string GENERIC = "generic";
+	const std::string UNEXPECTED_TOKEN = "unexpected_token";
+	const std::string MISSED_TERMINATOR = "missed_arnold";
+	const std::string LEXICAL = "lexical";
+	const std::string INCORRECT_TYPE = "bad-type";
+	const std::string END = "end";
+
 }
 
 #endif

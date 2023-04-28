@@ -24,10 +24,11 @@ int main(int argc, char* argv[])
     if (compiler.compile() == 0)
     {
         std::cout << "Compilation Successful" << std::endl;
+        return 0;
     }
     else
     {
         std::cout << "Compilation Failed" << std::endl;
+        return 1;
     }
-    return 0;
 }

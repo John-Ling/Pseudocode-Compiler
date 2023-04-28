@@ -1,0 +1,6 @@
+OUTPUT "Hello World"
+
+DECLARE name : STRING
+name "John"
+
+OUTPUT name

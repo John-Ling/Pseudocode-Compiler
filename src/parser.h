@@ -4,10 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
-#include <tuple>
 
 #include "token.h"
-#include "constants.h"
 #include "ast_nodes.h"
 #include "exceptions.h"
 
@@ -17,14 +15,13 @@ class Parser
         std::vector<Token> tokens;
         std::vector<Token> currentLine;
         int pointer;
-        void parse_line(int pointer);
+        void parse_line(void);
         bool compare(std::string tokenType);
         void match(std::string tokenType);
         void advance(void);
         bool peek(std::string tokenType);
         Node statement(void);
         Function function(void);
-        Function_Arguments function_parameter(void);
         Output output(void);
         Input input(void);
         While while_(void);

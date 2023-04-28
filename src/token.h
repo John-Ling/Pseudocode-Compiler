@@ -2,6 +2,7 @@
 #define Token_H
 
 #include <string>
+
 typedef struct Token_T
 {
     std::string type;

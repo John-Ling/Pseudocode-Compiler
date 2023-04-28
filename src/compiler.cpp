@@ -11,15 +11,15 @@ int Compiler::compile(void)
 {
     // Lexical Analysis
     Lexer lexer(this->sourceFile);
-    int lexingProcess = lexer.generate_tokens();
-    if (lexingProcess == 1)
+    std::cout << "Performing Lexical Analysis\n";
+    if (lexer.generate_tokens() == 1)
     {
         return 1;
     }
     // Parsing
     Parser parser(lexer.tokens);
-	int parsingProcess = parser.parse_tokens();
-    if (parsingProcess == 1)
+    std::cout << "Parsing and Building AST\n";
+    if (parser.parse_tokens() == 1)
     {
         return 1;
     }

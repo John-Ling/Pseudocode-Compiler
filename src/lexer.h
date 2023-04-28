@@ -1,6 +1,7 @@
 #ifndef Lexer_H
 #define Lexer_H
 
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <fstream>
