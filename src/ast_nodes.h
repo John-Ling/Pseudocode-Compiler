@@ -18,6 +18,16 @@ class Node
         void set_name(std::string value);
 };
 
+// represents nodes that contain many statements (a block statement) such as if statements, loops or functions
+class Block_Statement_Node
+{
+    private:
+        std::vector<std::string> TERMINATORS;
+    public:
+        std::vector<std::string> get_terminators();
+        void set_terminators(std::string tokenType);
+};
+
 class Literal: public Node
 {
     private:
@@ -100,7 +110,7 @@ class Function_Arguments: public Node
         // std::unordered_map<std::string, Primitive> get_arguments(void);
 };
 
-class Function: public Node
+class Function: public Node, Block_Statement_Node
 {
     private:
         Identifier functionName;
@@ -135,7 +145,7 @@ class Function_Call: public Node
         // std::vector<Node> get_arguments(void);
 };
 
-class While: public Node
+class While: public Node, Block_Statement_Node
 {
     private:
         Node condition;
@@ -146,7 +156,7 @@ class While: public Node
         // std::vector<Node> get_statements(void);
 };
 
-class For: public Node
+class For: public Node, Block_Statement_Node
 {
     private:
         Node start;
@@ -163,7 +173,7 @@ class For: public Node
         // std::vector<Node> get_statements(void);
 };
 
-class Else: public Node
+class Else: public Node, Block_Statement_Node
 {
     private:
         std::vector<Node> statements;
@@ -173,7 +183,7 @@ class Else: public Node
         // std::vector<Node> get_statements(void);
 };
 
-class If: public Node
+class If: public Node, Block_Statement_Node
 {
     private:
         Node condition;

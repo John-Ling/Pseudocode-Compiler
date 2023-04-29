@@ -19,8 +19,10 @@ class Parser
         bool compare(std::string tokenType);
         void match(std::string tokenType);
         void advance(void);
+        void double_advance(void);
         bool peek(std::string tokenType);
         Node statement(void);
+        std::vector<Node> block_statement(std::vector<std::string> terminators);
         Function function(void);
         Output output(void);
         Input input(void);
@@ -42,7 +44,6 @@ class Parser
         Call_Arguments function_call_arguments(void);
         Literal primitive_literal(void);
         Primitive primitive_type(void);
-
     public:
         std::vector<Node> nodes; // abstract syntax tree 
         Parser(std::vector<Token> tokens);

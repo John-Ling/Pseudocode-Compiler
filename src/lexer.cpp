@@ -20,7 +20,6 @@ int Lexer::generate_tokens(void)
         return 1;
     }
     
-    int index = 0;
     while (fileReader)
     {
         std::string line;
@@ -88,11 +87,12 @@ void Lexer::tokenize_line(std::string line)
     this->tokens.push_back(endOfLineToken);
 }
 
+// "peeks" at the next two character to take the valid maximal munch of a potential token
+// when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
 Token Lexer::lookahead(std::string character)
 {
-    // "peeks" at the next two character to take the valid maximal munch of a potential token
-    // when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
-    // return generated token
+    
+
     if (character == Keywords::LESSER || character == Keywords::GREATER) // in psuedocode there are only two characters with double or triple operators
     {
         const unsigned int LONGEST_OPERATOR_LENGTH = 3; // the assignment operator <-- is 3 characters long

@@ -2,6 +2,7 @@
 #define Constants_H
 
 #include <string>
+#include <vector>
 
 namespace Keywords // modify to change the keyword for a specific action i.e change "RETURN" to "wumbo" to make "wumbo" the return keyword.
 {
@@ -117,6 +118,11 @@ namespace Tokens // Internal token names for compiler to use. I wouldn't touch t
 	// Misc
 	const std::string END_OF_FILE = "[EOF]";
 	const std::string END_OF_LINE = "[EOL]";
+	const std::vector<std::string> OPERATORS = { // add to this vector when new operators are added
+		AND, OR, EQUAL, NOT_EQUAL, GREATER, 
+		GREATER_EQUAL, LESSER, LESSER_EQUAL,
+		ADDITION, SUBTRACTION, MULTIPLICATION,
+		DIVISION, MOD, NOT};
 }
 
 namespace AST_Node_Names // Internal node names for abstract syntax tree. I wouldn't touch these.
