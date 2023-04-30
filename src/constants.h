@@ -122,7 +122,8 @@ namespace Tokens // Internal token names for compiler to use. I wouldn't touch t
 		AND, OR, EQUAL, NOT_EQUAL, GREATER, 
 		GREATER_EQUAL, LESSER, LESSER_EQUAL,
 		ADDITION, SUBTRACTION, MULTIPLICATION,
-		DIVISION, MOD, NOT};
+		DIVISION, MOD, NOT, LBRACKET, RBRACKET,
+		LSQUARE, RSQUARE, COMMA};
 }
 
 namespace AST_Node_Names // Internal node names for abstract syntax tree. I wouldn't touch these.

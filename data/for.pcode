@@ -1,0 +1,3 @@
+FOR Index <-- 0 TO Limit
+    OUTPUT Index
+NEXT Index

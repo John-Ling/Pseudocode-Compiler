@@ -1,14 +1,8 @@
-DECLARE Name : STRING
-Name <-- "John"
-
 IF (Name = "John") THEN
     OUTPUT "Your name is John"
 ELSE
     OUTPUT "Your name is not John"
 ENDIF
-
-DECLARE Number : INTEGER
-Number <-- 433242
 
 IF (Number > 324) THEN
     IF Number = 34234 THEN
