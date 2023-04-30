@@ -8,8 +8,8 @@
 
 // Stages of Development
 // Lexer: Done
-// Parser: Current
-// Code generation: Not Done
+// Parser: Done
+// Code generation: Current
 
 int main(int argc, char* argv[])
 {
