@@ -22,6 +22,16 @@ Literal::Literal(Token token)
     this->type = token.type;
 }
 
+std::string Literal::get_type(void)
+{
+    return this->type;
+}
+
+std::string Literal::get_value(void)
+{
+    return this->value;
+}
+
 Identifier::Identifier(void) 
 {
     set_name(AST_Node_Names::IDENTIFIER);
@@ -49,11 +59,27 @@ Primitive::Primitive(Token token)
     this->type = token.type;
 }
 
+std::string Primitive::get_type(void)
+{
+    return this->type;
+}
+
+
 Variable_Declaration::Variable_Declaration(Identifier identifier, Primitive type)
 {
     set_name(AST_Node_Names::DECLARATION);
     this->identifier = identifier;
     this->type = type;
+}
+
+Identifier Variable_Declaration::get_identifier(void)
+{
+    return this->identifier;
+}
+
+Primitive Variable_Declaration::get_type(void)
+{
+    return this->type;
 }
 
 Variable_Assignment::Variable_Assignment(Identifier identifier, Node expression)
@@ -63,16 +89,36 @@ Variable_Assignment::Variable_Assignment(Identifier identifier, Node expression)
     this->expression = expression;
 }
 
+Identifier Variable_Assignment::get_identifier(void)
+{
+    return this->identifier;
+}
+
+Node Variable_Assignment::get_expression(void)
+{
+    return this->expression;
+}
+
 Output::Output(std::vector<Node> expressions)
 {
     set_name(AST_Node_Names::OUTPUT);
     this->expressions = expressions;
 }
 
+std::vector<Node> Output::get_expressions(void)
+{
+    return this->expressions;
+}
+
 Input::Input(Identifier identifier)
 {
     set_name(AST_Node_Names::INPUT);
     this->identifier = identifier;
+}
+
+Identifier Input::get_identifier(void)
+{
+    return this->identifier;
 }
 
 Function::Function(Identifier functionName, Primitive returnType, Function_Arguments arguments, std::vector<Node> statements)
@@ -84,9 +130,44 @@ Function::Function(Identifier functionName, Primitive returnType, Function_Argum
     this->statements = statements;
 }
 
+Identifier Function::get_function_name(void)
+{
+    return this->functionName;
+}
+
+Function_Arguments Function::get_arguments(void)
+{
+    return this->arguments;
+}
+
+Primitive Function::get_return_type(void)
+{
+    return this->returnType;
+}
+
+std::vector<Node> Function::get_statements(void)
+{
+    return this->statements;
+}
+
 Function_Arguments::Function_Arguments(void)
 {
     set_name(AST_Node_Names::FUNCTION_ARGUMENTS);
+}
+
+std::unordered_map<std::string, Primitive> Function_Arguments::get_arguments(void)
+{
+    return this->arguments;
+}
+
+void Function_Arguments::add_argument(Identifier identifier, Primitive type)
+{
+    std::string identifierName = identifier.get_variable_name();
+    if (this->arguments.count(identifierName)) 
+    {
+        this->arguments[identifierName] = type; 
+    }
+    return;
 }
 
 Function_Call::Function_Call(Identifier functionName, Call_Arguments arguments)
@@ -105,20 +186,20 @@ void Call_Arguments::add_argument(Node expression)
     this->arguments.push_back(expression); 
 }
 
-void Function_Arguments::add_argument(Identifier identifier, Primitive type)
+std::vector<Node> Call_Arguments::get_arguments(void)
 {
-    std::string identifierName = identifier.get_variable_name();
-    if (this->arguments.count(identifierName)) 
-    {
-        this->arguments[identifierName] = type; 
-    }
-    return;
+    return this->arguments;
 }
 
 Return::Return(Node expression)
 {
     set_name(AST_Node_Names::RETURN);
     this->expression = expression;
+}
+
+Node Return::get_expression(void)
+{
+    return this->expression;
 }
 
 While::While(Node condition, std::vector<Node> statements)
@@ -128,7 +209,26 @@ While::While(Node condition, std::vector<Node> statements)
     this->statements = statements;
 }
 
-For::For(Node start, Node end, Node* step, Identifier indexVariable, std::vector<Node> statements)
+Node While::get_condition(void)
+{
+    return this->condition;
+}
+
+std::vector<Node> While::get_statements(void)
+{
+    return this->statements;
+}
+
+For::For(Node start, Node end, Identifier indexVariable, std::vector<Node> statements)
+{
+    set_name(AST_Node_Names::FOR);
+    this->start = start;
+    this->end = end;
+    this->indexVariable = indexVariable;
+    this->statements = statements;
+}
+
+For::For(Node start, Node end, Node step, Identifier indexVariable, std::vector<Node> statements)
 {
     set_name(AST_Node_Names::FOR);
     this->start = start;
@@ -136,6 +236,31 @@ For::For(Node start, Node end, Node* step, Identifier indexVariable, std::vector
     this->step = step;
     this->indexVariable = indexVariable;
     this->statements = statements;
+}
+
+Node For::get_start(void)
+{
+    return this->start;
+}
+
+Node For::get_end(void)
+{
+    return this->end;
+}
+
+Node For::get_step(void)
+{
+    return this->step;
+}
+
+Identifier For::get_index_variable(void)
+{
+    return this->indexVariable;
+}
+
+std::vector<Node> For::get_statements(void)
+{
+    return this->statements;
 }
 
 If::If(void)
@@ -161,6 +286,26 @@ If::If(Node condition, std::vector<Node> statements, Else elseNode)
     this->elseNodePresent = true;
 }
 
+Node If::get_condition(void)
+{
+    return this->condition;
+}
+
+std::vector<Node> If::get_statements(void)
+{
+    return this->statements;
+}
+
+bool If::is_else_node_present(void)
+{
+    return this->elseNodePresent;
+}
+
+Else If::get_else_node(void)
+{
+    return this->elseNode;
+}
+
 Else::Else(void)
 {
     set_name(AST_Node_Names::ELSE);
@@ -172,6 +317,11 @@ Else::Else(std::vector<Node> statements)
     this->statements = statements;
 }
 
+std::vector<Node> Else::get_statements(void)
+{
+    return this->statements;
+}
+
 Binary_Expression::Binary_Expression(Node left, Token operation, Node right)
 {
     set_name(AST_Node_Names::BINARY_EXPRESSION);
@@ -180,9 +330,34 @@ Binary_Expression::Binary_Expression(Node left, Token operation, Node right)
     this->right = right;
 }
 
+Node Binary_Expression::get_left_expression(void)
+{
+    return this->left;
+}
+
+Token Binary_Expression::get_operator(void)
+{
+    return this->operation;
+}
+
+Node Binary_Expression::get_right_expression(void)
+{
+    return this->right;
+}
+
 Unary_Expression::Unary_Expression(Node expression, Token operation)
 {
     set_name(AST_Node_Names::UNARY_EXPRESSION);
     this->expression = expression;
     this->operation = operation;
+}
+
+Node Unary_Expression::get_expression(void)
+{
+    return this->expression;
+}
+
+Token Unary_Expression::get_operator(void)
+{
+    return this->operation;
 }

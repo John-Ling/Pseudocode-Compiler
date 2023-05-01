@@ -6,7 +6,6 @@
 #include <vector>
 #include <fstream>
 #include <string>
-#include <stdlib.h>
 
 #include "token.h"
 #include "constants.h"

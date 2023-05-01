@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include <stdlib.h>
+#include <unordered_map>
 
 #include "token.h"
 #include "ast_nodes.h"
@@ -24,6 +24,7 @@ class Parser
         Node statement(void);
         std::vector<Node> block_statement(std::vector<std::string> terminators);
         Function function(void);
+        Function_Arguments function_arguments(void);
         Output output(void);
         Input input(void);
         While while_(void);
@@ -48,7 +49,7 @@ class Parser
         std::vector<Node> nodes; // abstract syntax tree 
         Parser(std::vector<Token> tokens);
         int parse_tokens(void);
-        int parser_test(void);
+        int get_pointer(void);
 };
 
 #endif

@@ -23,5 +23,14 @@ int Compiler::compile(void)
     {
         return 1;
     }
+
+    // Code Generation
+    Code_Generator generator(this->sourceFile, parser.nodes);
+    std::cout << "Building Code\n";
+    if (generator.generate_code() == 1)
+    {
+        return 1;
+    }
+    
     return 0;
 }

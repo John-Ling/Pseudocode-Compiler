@@ -4,6 +4,7 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "code_generator.h"
 
 class Compiler
 {    
