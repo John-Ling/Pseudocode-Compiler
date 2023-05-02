@@ -3,7 +3,7 @@ DECLARE B : INTEGER
 DECLARE C : INTEGER
 A <-- 2
 B <-- 6
-C <-- A + b
+C <-- A + B
 
 OUTPUT C
 C = B * A

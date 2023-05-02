@@ -144,6 +144,7 @@ namespace AST_Node_Names // Internal node names for abstract syntax tree. I woul
 	const std::string BINARY_EXPRESSION = "binary_expression";
 	const std::string UNARY_EXPRESSION = "unary_expression";
 	const std::string FUNCTION_ARGUMENTS = "function_arguments";
+	const std::string FUNCTION_CALL = "function_call";
 	const std::string CALL_ARGUMENTS = "call_arguments";
 }
 
@@ -156,6 +157,20 @@ namespace Exception_Types // Internal exception names for compile. I wouldn't to
 	const std::string INCORRECT_TYPE = "bad-type";
 	const std::string END = "end";
 
+}
+
+namespace Python_Keywords
+{
+	const std::string FUNCTION = "def ";
+	const std::string WHILE = "while ";
+	const std::string PRINT = "print";
+	const std::string INPUT = "input";
+	const std::string IF = "if ";
+	const std::string ELSE = "else";
+	const std::string GREATER_EQUAL = " >= ";
+	const std::string LESSER_EQUAL = " <= ";
+	const std::string NOT_EQUAL = " != ";
+	const std::string FOR = "for ";
 }
 
 #endif

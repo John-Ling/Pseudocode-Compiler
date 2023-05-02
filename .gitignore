@@ -1,5 +1,6 @@
 test.*
 *.o
+*.py
 main
 src/test.*
 include/test.*

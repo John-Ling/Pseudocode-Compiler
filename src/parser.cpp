@@ -19,7 +19,7 @@ int Parser::parse_tokens(void)
 
         try
         {
-            Node statementNode = statement();
+            Node* statementNode = statement();
             this->nodes.push_back(statementNode);
         }
         catch(Error &e)
@@ -97,7 +97,7 @@ void Parser::double_advance(void) // made this because I didn't like putting adv
 
 // ast node functions
 
-Node Parser::statement(void)
+Node* Parser::statement(void)
 {
     Node statement;
     if (compare(Tokens::OUTPUT))
@@ -152,7 +152,7 @@ Node Parser::statement(void)
 }
 
 // generates a node to represent the many statements inside "structures" such as if statements, loops or functions
-std::vector<Node> Parser::block_statement(std::vector<std::string> terminators)
+std::vector<Node*> Parser::block_statement(std::vector<std::string> terminators)
 {
     auto compare_terminators = [this, terminators](void)
     {
@@ -166,7 +166,7 @@ std::vector<Node> Parser::block_statement(std::vector<std::string> terminators)
         return false;
     };
 
-    std::vector<Node> statements;
+    std::vector<Node*> statements;
     while (!compare_terminators() && this->pointer != -1)
     {
         statements.push_back(statement());
@@ -181,83 +181,83 @@ std::vector<Node> Parser::block_statement(std::vector<std::string> terminators)
     return statements;
 }
 
-Literal Parser::primitive_literal(void)
+Node* Parser::primitive_literal(void)
 {
     const std::vector<std::string> LITERALS = {Tokens::INTEGER_LITERAL, Tokens::FLOAT_LITERAL, Tokens::STRING_LITERAL, Tokens::BOOLEAN_LITERAL};
     for (int i = 0; i < (int)LITERALS.size(); i++)
     {
         if (compare(LITERALS[i]))
         {
-            return Literal(this->tokens[this->pointer]);
+            return new Literal(this->tokens[this->pointer]);
         }
     }
     throw Generic_Error();
 }
 
-Primitive Parser::primitive_type(void)
+Node* Parser::primitive_type(void)
 {
     const std::vector<std::string> PRIMITIVES = {Tokens::INTEGER, Tokens::STRING, Tokens::BOOLEAN, Tokens::FLOAT};
     for (int i = 0; i < (int)PRIMITIVES.size(); i++)
     {
         if (compare(PRIMITIVES[i]))
         {
-            return Primitive(this->tokens[this->pointer]);
+            return new Primitive(this->tokens[this->pointer]);
         }
     }
     throw Generic_Error();
 }
 
 // <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
-Variable_Declaration Parser::variable_declaration(void)
+Node* Parser::variable_declaration(void)
 {    
     match(Tokens::IDENTIFIER);
-    Identifier identifier = Identifier(this->tokens[this->pointer]);
+    Node* identifier = new Identifier(this->tokens[this->pointer]);
     advance();
     match(Tokens::COLON);
     advance();
 
-    Primitive primitive = primitive_type();
-    return Variable_Declaration(identifier, primitive);
+    Node* primitive = primitive_type();
+    return new Variable_Declaration(identifier, primitive);
 }
 
 // <output> ::= [OUTPUT] <expression> (, <expression>)*
-Output Parser::output(void)
+Node* Parser::output(void)
 {   
-    std::vector<Node> expressions = {expression()};
+    std::vector<Node*> expressions = {expression()};
     while (peek(Tokens::COMMA) && this->pointer != -1)
     {
         double_advance();
-        Node expressionNode = expression();
+        Node* expressionNode = expression();
         expressions.push_back(expressionNode);
     }
-    return Output(expressions);
+    return new Output(expressions);
 }
 
 // <input> ::= [INPUT] [IDENTIFIER]
-Input Parser::input(void)
+Node* Parser::input(void)
 {
     match(Tokens::IDENTIFIER);
-    Identifier identifier = Identifier(this->tokens[this->pointer]);
-    return Input(identifier);
+    Node* identifier = new Identifier(this->tokens[this->pointer]);
+    return new Input(identifier);
 }
 
-For Parser::for_(void)
+Node* Parser::for_(void)
 {
     // <for> ::= [FOR] [IDENTIFIER] [ASSIGNMENT] <expression> TO <expression> ([STEP] [INTEGER_LITERAL])? (<statement>)* [NEXT] [IDENTIFIER]
     bool stepExpressionPresent = false;
 
     match(Tokens::IDENTIFIER);
-    Identifier identifier = Identifier(this->tokens[this->pointer]);
+    Node* indexVariable = new Identifier(this->tokens[this->pointer]);
     advance();
     match(Tokens::ASSIGNMENT);
     advance();
-    Node startExpression = expression();
+    Node* startExpression = expression();
     advance();
     match(Tokens::TO);
     advance();
-    Node endExpression = expression();
+    Node* endExpression = expression();
     advance();
-    Node stepExpression;
+    Node* stepExpression;
 
     if (compare(Tokens::STEP)) // optional step keyword 
     {
@@ -267,93 +267,92 @@ For Parser::for_(void)
     }
 
     const std::vector<std::string> TERMINATORS = {Tokens::NEXT};
-    std::vector<Node> statements = block_statement(TERMINATORS);
+    std::vector<Node*> statements = block_statement(TERMINATORS);
     advance();
     match(Tokens::IDENTIFIER);
-    Identifier indexVariable = Identifier(this->tokens[this->pointer]);
 
     if (stepExpressionPresent)
     {
-        return For(startExpression, endExpression, stepExpression, indexVariable, statements);
+        return new For(startExpression, endExpression, stepExpression, indexVariable, statements);
     }
-    return For(startExpression, endExpression, indexVariable, statements);
+    return new For(startExpression, endExpression, indexVariable, statements);
 }
 
 // <if> ::= [IF] <expression> [THEN] (<statement>)* ([ENDIF] | [ELSE] <else>)
-If Parser::if_(void)
+Node* Parser::if_(void)
 {
-    Node condition = expression();
+    Node* condition = expression();
     advance();
     match(Tokens::THEN);
     advance();
 
     const std::vector<std::string> TERMINATORS = {Tokens::ENDIF, Tokens::ELSE};
-    std::vector<Node> statements = block_statement(TERMINATORS);
+    std::vector<Node*> statements = block_statement(TERMINATORS);
     
     if (compare(Tokens::ELSE)) 
     {
         advance();
-        Else elseNode = else_();
-        return If(condition, statements, elseNode);
+        Node* elseNode = else_();
+        return new If(condition, statements, elseNode);
     }
     else
     {
-        return If(condition, statements);
+        return new If(condition, statements);
     }
 }
 
 // <else> ::= (<statement>)* [ENDIF]
-Else Parser::else_(void)
+Node* Parser::else_(void)
 {
     const std::vector<std::string> TERMINATORS = {Tokens::ENDIF};
-    std::vector<Node> statements = block_statement(TERMINATORS);
-    return Else(statements);
+    std::vector<Node*> statements = block_statement(TERMINATORS);
+    return new Else(statements);
 }
 
 // <while> ::= [WHILE] <expression> (<statement>)* [ENDWHILE]
-While Parser::while_(void)
+Node* Parser::while_(void)
 {
-    Node condition = expression();
+    Node* condition = expression();
     advance();
     const std::vector<std::string> TERMINATORS = {Tokens::ENDWHILE};
-    std::vector<Node> statements = block_statement(TERMINATORS);
-    return While(condition, statements);
+    std::vector<Node*> statements = block_statement(TERMINATORS);
+    return new While(condition, statements);
 }
 
-Return Parser::return_(void)
+Node* Parser::return_(void)
 {
     // <return> ::= [RETURN] <expression>
-    Node expressionNode = expression();
-    return Return(expressionNode); 
+    Node* expressionNode = expression();
+    return new Return(expressionNode); 
 }
 
 // <function> ::= [FUNCTION] [IDENTIFIER] ( <function-parameter> [RETURNS] <primitive-type> (<statement>)* [ENDFUNCTION]
-Function Parser::function(void)
+Node* Parser::function(void)
 {
     match(Tokens::IDENTIFIER);
-    Identifier functionName = Identifier(this->tokens[this->pointer]);
+    Node* functionName = new Identifier(this->tokens[this->pointer]);
     advance();
     match(Tokens::LBRACKET);
     advance();
 
-    Function_Arguments arguments = function_arguments();
+    Node* arguments = function_arguments();
     
     advance();
     match(Tokens::RETURNS);
     advance();
 
-    Primitive returnType = primitive_type();
+    Node* returnType = primitive_type();
     advance();
 
     const std::vector<std::string> TERMINATORS = {Tokens::ENDFUNCTION};
-    std::vector<Node> statements = block_statement(TERMINATORS);
-    return Function(functionName, returnType, arguments, statements);
+    std::vector<Node*> statements = block_statement(TERMINATORS);
+    return new Function(functionName, returnType, arguments, statements);
 }
 
-Function_Arguments Parser::function_arguments(void)
+Node* Parser::function_arguments(void)
 {
     unsigned int argumentCount = 0;
-    Function_Arguments arguments;
+    Function_Arguments* arguments = new Function_Arguments;
     while (!compare(Tokens::RBRACKET) && this->pointer != -1)
     {
         if (argumentCount > 0)  // one comma to separate each function argument
@@ -363,14 +362,14 @@ Function_Arguments Parser::function_arguments(void)
         }
 
         match(Tokens::IDENTIFIER);
-        Identifier identifier = Identifier(this->tokens[this->pointer]);
+        Node* identifier = new Identifier(this->tokens[this->pointer]);
         advance();
         match(Tokens::COLON);
         advance();
-        Primitive type = primitive_type();
+        Node* type = primitive_type();
         advance();
         
-        arguments.add_argument(identifier, type);
+        arguments->add_argument(identifier, type);
         argumentCount++;
     }
 
@@ -394,92 +393,92 @@ Function_Arguments Parser::function_arguments(void)
 
 // important detail: when the parser finishes an expression the pointer will be located at the token that finished the expression
 
-Node Parser::expression(void)
+Node* Parser::expression(void)
 { 
     //<expression> ::= <equality>
     return logical_comparison();
 }
 
-Node Parser::logical_comparison(void) // most expression nodes are in this structure
+Node* Parser::logical_comparison(void) // most expression nodes are in this structure
 {
-    Node expression = equality(); // form left side of expression
+    Node* expression = equality(); // form left side of expression
 
     while (peek(Tokens::AND) || peek(Tokens::OR)) // check if the respective operator is next
     {
         advance();
         Token operation = this->tokens[this->pointer]; // collect operator
         advance();
-        Node rightExpression = equality(); // form lower precedence expression 
-        expression = Binary_Expression(expression, operation, rightExpression); // form node
+        Node* rightExpression = equality(); // form lower precedence expression 
+        expression = new Binary_Expression(expression, operation, rightExpression); // form node
     }
     return expression;
 }
 
-Node Parser::equality(void)
+Node* Parser::equality(void)
 {
-    Node expression = numerical_comparison();
+    Node* expression = numerical_comparison();
     while (peek(Tokens::EQUAL) || peek(Tokens::NOT_EQUAL))
     {
         advance();
         Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = numerical_comparison();
-        expression = Binary_Expression(expression, operation, rightExpression);
+        Node* rightExpression = numerical_comparison();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
 
     return expression;
 }
 
-Node Parser::numerical_comparison(void)
+Node* Parser::numerical_comparison(void)
 {
-    Node expression = term();
+    Node* expression = term();
     while (peek(Tokens::GREATER) || peek(Tokens::GREATER_EQUAL) || peek(Tokens::LESSER) || peek(Tokens::LESSER_EQUAL))
     {
         advance();
         Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = term();
-        expression = Binary_Expression(expression, operation, rightExpression);
+        Node* rightExpression = term();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
 
     return expression;
 }
 
-Node Parser::term(void)
+Node* Parser::term(void)
 {
-    Node expression = factor();
+    Node* expression = factor();
     while (peek(Tokens::ADDITION) || peek(Tokens::SUBTRACTION))
     {
         advance();
         Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = factor();
-        expression = Binary_Expression(expression, operation, rightExpression);
+        Node* rightExpression = factor();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::factor(void)
+Node* Parser::factor(void)
 {
-    Node expression = unary();
+    Node* expression = unary();
     while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION))
     {
         advance();
         Token operation = this->tokens[this->pointer];
         advance();
-        Node rightExpression = unary();
-        expression = Binary_Expression(expression, operation, rightExpression);
+        Node* rightExpression = unary();
+        expression = new Binary_Expression(expression, operation, rightExpression);
     }
     return expression;
 }
 
-Node Parser::unary(void)
+Node* Parser::unary(void)
 {
     if (compare(Tokens::SUBTRACTION) || compare(Tokens::NOT))
     {
         Token unaryOperator = this->tokens[this->pointer];
         advance();
-        return Unary_Expression(unary(), unaryOperator); // create and return unary expression
+        return new Unary_Expression(unary(), unaryOperator); // create and return unary expression
     }
     else
     {
@@ -487,13 +486,12 @@ Node Parser::unary(void)
     }
 }
 
-Node Parser::primary(void)
+Node* Parser::primary(void)
 {
     if (compare(Tokens::IDENTIFIER))
     {
         auto peek_operators = [this](void)
         {
-
             for (unsigned int i = 0; i < Tokens::OPERATORS.size(); i++) // OPERATORS can be found in constants.h
             {
                 if (peek(Tokens::OPERATORS[i]))
@@ -504,20 +502,20 @@ Node Parser::primary(void)
             return false;
         };
 
-        Identifier identifier = Identifier(this->tokens[this->pointer]);
+        Node* identifier = new Identifier(this->tokens[this->pointer]);
 
         if (peek(Tokens::LBRACKET)) // try form function call node
         {
             double_advance();
-            Call_Arguments arguments = function_call_arguments();
-            return Function_Call(identifier, arguments);
+            Node* arguments = function_call_arguments();
+            return new Function_Call(identifier, arguments);
         }
 
         if (peek(Tokens::ASSIGNMENT)) // try form variable assignment node
         {
             double_advance();
-            Node assignmentExpression = expression();
-            return Variable_Assignment(identifier, assignmentExpression);
+            Node* assignmentExpression = expression();
+            return new Variable_Assignment(identifier, assignmentExpression);
         }
         else if (peek(Tokens::END_OF_LINE) || peek_operators())
         {
@@ -529,7 +527,7 @@ Node Parser::primary(void)
     else if (compare(Tokens::LBRACKET)) // attempt to form bracketed expression
     {
         advance();
-        Node expressionNode = expression();
+        Node* expressionNode = expression();
         advance();
         match(Tokens::RBRACKET);
         return expressionNode;
@@ -540,15 +538,15 @@ Node Parser::primary(void)
     }
 }
 
-Call_Arguments Parser::function_call_arguments(void)
+Node* Parser::function_call_arguments(void)
 {
     // <function-call-parameter> ::= <expression> , <function-call-parameter> | )
-    Call_Arguments arguments;
-    arguments.add_argument(expression());
+    Call_Arguments* arguments = new Call_Arguments;
+    arguments->add_argument(expression());
     advance();
     while (!(compare(Tokens::COMMA) || compare(Tokens::RBRACKET)) && this->pointer != -1)
     {
-        arguments.add_argument(expression());
+        arguments->add_argument(expression());
         advance();
     }
     return arguments;

@@ -85,12 +85,10 @@ void Lexer::tokenize_line(std::string line)
 // when given two token choices < or or <= or <--, <-- will be chosen as its the longest valid token
 Token Lexer::lookahead(std::string character)
 {
-    
-
     if (character == Keywords::LESSER || character == Keywords::GREATER) // in psuedocode there are only two characters with double or triple operators
     {
         const unsigned int LONGEST_OPERATOR_LENGTH = 3; // the assignment operator <-- is 3 characters long
-        int offset = 0; // determines how many characters the function skips over when completed as those characters combine into a single token
+        unsigned int offset = 0; // determines how many characters the function skips over when completed as those characters combine into a single token
         std::string largestOperator = {character};
         Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
 
@@ -111,8 +109,11 @@ Token Lexer::lookahead(std::string character)
         this->position += offset;
         return token;
     }
-    Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
-    return token;
+    else
+    {
+        Token token(this->KEYWORDS_TO_TOKENS.at(character), character);
+        return token;
+    }
 }
 
 void Lexer::advance()
