@@ -154,19 +154,22 @@ Function_Arguments::Function_Arguments(void)
     set_name(AST_Node_Names::FUNCTION_ARGUMENTS);
 }
 
-std::unordered_map<std::string, Node*> Function_Arguments::get_arguments(void)
-{
-    return this->arguments;
-}
-
 void Function_Arguments::add_argument(Node* identifier, Node* type)
 {
     std::string identifierName = static_cast<Identifier*>(identifier)->get_variable_name();
-    if (this->arguments.count(identifierName)) 
-    {
-        this->arguments[identifierName] = type; 
-    }
+    this->argumentNames.push_back(identifierName);
+    this->argumentTypes.push_back(type);
     return;
+}
+
+std::vector<std::string> Function_Arguments::get_argument_names(void)
+{
+    return this->argumentNames;
+}
+
+std::vector<Node*> Function_Arguments::get_argument_types(void)
+{
+    return this->argumentTypes;
 }
 
 Function_Call::Function_Call(Node* functionName, Node* arguments)
@@ -345,6 +348,7 @@ Binary_Expression::Binary_Expression(Node* left, Token operation, Node* right)
     this->left = left;
     this->operation = operation;
     this->right = right;
+    this->bracketed = false;
 }
 
 Node* Binary_Expression::get_left_expression(void)
@@ -362,11 +366,22 @@ Node* Binary_Expression::get_right_expression(void)
     return this->right;
 }
 
+void Binary_Expression::set_bracketed(bool value)
+{
+    this->bracketed = value;
+}
+
+bool Binary_Expression::is_bracketed(void)
+{
+    return this->bracketed;
+}
+
 Unary_Expression::Unary_Expression(Node* expression, Token operation)
 {
     set_name(AST_Node_Names::UNARY_EXPRESSION);
     this->expression = expression;
     this->operation = operation;
+    this->bracketed = false;
 }
 
 Node* Unary_Expression::get_expression(void)
@@ -377,4 +392,14 @@ Node* Unary_Expression::get_expression(void)
 Token Unary_Expression::get_operator(void)
 {
     return this->operation;
+}
+
+void Unary_Expression::set_bracketed(bool value)
+{
+    this->bracketed = value;
+}
+
+bool Unary_Expression::is_bracketed(void)
+{
+    return this->bracketed;
 }

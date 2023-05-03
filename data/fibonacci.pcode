@@ -1,0 +1,29 @@
+DECLARE NTerms : INTEGER
+DECLARE Nth : INTEGER
+DECLARE N1: INTEGER
+DECLARE N2 : INTEGER
+DECLARE Count : INTEGER
+
+OUTPUT "How many terms?"
+INPUT NTerms
+N1 <-- 0
+N2 <-- 1
+Count <-- 0
+
+IF NTerms <= 0 THEN
+    OUTPUT "Please enter a positive integer"
+ELSE
+    IF NTerms = 1 THEN
+        OUTPUT "Fibonacci sequence up to ", NTerms, ": "
+        OUTPUT N1
+    ELSE
+        OUTPUT "Fibonacci Sequence"
+        WHILE Count < NTerms
+            OUTPUT N1
+            Nth <-- N1 + N2
+            N1 <-- N2
+            N2 <-- Nth
+            Count <-- Count + 1
+        ENDWHILE
+    ENDIF
+ENDIF

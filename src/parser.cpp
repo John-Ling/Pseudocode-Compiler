@@ -11,21 +11,18 @@ int Parser::parse_tokens(void)
 {
     while (this->pointer != -1 && this->tokens[this->pointer].type != Tokens::END_OF_FILE)
     {
-        if (compare(Tokens::END_OF_LINE))
+        if (!compare(Tokens::END_OF_LINE))
         {
-            advance();
-            continue;
-        }
-
-        try
-        {
-            Node* statementNode = statement();
-            this->nodes.push_back(statementNode);
-        }
-        catch(Error &e)
-        {
-            e.display_problem();
-            exit(1);
+            try
+            {
+                Node* statementNode = statement();
+                this->nodes.push_back(statementNode);
+            }
+            catch(Error &e)
+            {
+                e.display_problem();
+                exit(1);
+            }
         }
         advance();
     }
@@ -144,6 +141,10 @@ Node* Parser::statement(void)
         advance();
         return if_();
     }
+    else if (compare(Tokens::IDENTIFIER))
+    {
+        return identifier_();
+    }
     else
     {
         // attempt to generate a standalone expression node
@@ -203,6 +204,22 @@ Node* Parser::primitive_type(void)
         {
             return new Primitive(this->tokens[this->pointer]);
         }
+    }
+    throw Generic_Error();
+}
+
+Node* Parser::identifier_(void)
+{
+    if (peek(Tokens::ASSIGNMENT)) // try form variable assignment node
+    {
+        Node* identifier = new Identifier(this->tokens[this->pointer]);
+        double_advance();
+        Node* assignmentExpression = expression();
+        return new Variable_Assignment(identifier, assignmentExpression);
+    }
+    else if (peek(Tokens::END_OF_LINE))
+    {
+        return new Identifier(this->tokens[this->pointer]);
     }
     throw Generic_Error();
 }
@@ -368,7 +385,6 @@ Node* Parser::function_arguments(void)
         advance();
         Node* type = primitive_type();
         advance();
-        
         arguments->add_argument(identifier, type);
         argumentCount++;
     }
@@ -490,20 +506,7 @@ Node* Parser::primary(void)
 {
     if (compare(Tokens::IDENTIFIER))
     {
-        auto peek_operators = [this](void)
-        {
-            for (unsigned int i = 0; i < Tokens::OPERATORS.size(); i++) // OPERATORS can be found in constants.h
-            {
-                if (peek(Tokens::OPERATORS[i]))
-                {
-                    return true;
-                }
-            }
-            return false;
-        };
-
         Node* identifier = new Identifier(this->tokens[this->pointer]);
-
         if (peek(Tokens::LBRACKET)) // try form function call node
         {
             double_advance();
@@ -511,18 +514,7 @@ Node* Parser::primary(void)
             return new Function_Call(identifier, arguments);
         }
 
-        if (peek(Tokens::ASSIGNMENT)) // try form variable assignment node
-        {
-            double_advance();
-            Node* assignmentExpression = expression();
-            return new Variable_Assignment(identifier, assignmentExpression);
-        }
-        else if (peek(Tokens::END_OF_LINE) || peek_operators())
-        {
-            return identifier; // return a regular identifier
-        }
-        
-        throw Generic_Error();
+        return identifier; // return standalone identifier
     }
     else if (compare(Tokens::LBRACKET)) // attempt to form bracketed expression
     {
@@ -530,7 +522,17 @@ Node* Parser::primary(void)
         Node* expressionNode = expression();
         advance();
         match(Tokens::RBRACKET);
-        return expressionNode;
+
+        if (expressionNode->get_node_name() == AST_Node_Names::BINARY_EXPRESSION)
+        {
+            static_cast<Binary_Expression*>(expressionNode)->set_bracketed(true);
+        }
+        else
+        {
+            static_cast<Unary_Expression*>(expressionNode)->set_bracketed(true);
+        }
+
+        return static_cast<Node*>(expressionNode);
     }
     else
     {
@@ -544,8 +546,9 @@ Node* Parser::function_call_arguments(void)
     Call_Arguments* arguments = new Call_Arguments;
     arguments->add_argument(expression());
     advance();
-    while (!(compare(Tokens::COMMA) || compare(Tokens::RBRACKET)) && this->pointer != -1)
+    while (compare(Tokens::COMMA) && !compare(Tokens::RBRACKET) && this->pointer != -1)
     {
+        advance();
         arguments->add_argument(expression());
         advance();
     }

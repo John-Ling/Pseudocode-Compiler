@@ -93,11 +93,13 @@ class Input: public Node
 class Function_Arguments: public Node
 {
     private:
-        std::unordered_map<std::string, Node*> arguments;
+        std::vector<std::string> argumentNames;
+        std::vector<Node*> argumentTypes;
     public:
         Function_Arguments(void);
         void add_argument(Node* identifier, Node* type);
-        std::unordered_map<std::string, Node*> get_arguments(void);
+        std::vector<std::string> get_argument_names(void);
+        std::vector<Node*> get_argument_types(void);
 };
 
 class Function: public Node
@@ -209,11 +211,14 @@ class Binary_Expression: public Node
         Token operation;
         Node* left;
         Node* right;
+        bool bracketed;
     public:
         Binary_Expression(Node* left, Token operation, Node* right);
         Token get_operator(void);
         Node* get_left_expression(void);
         Node* get_right_expression(void);
+        void set_bracketed(bool value);
+        bool is_bracketed(void);
 };
 
 class Unary_Expression: public Node
@@ -221,10 +226,13 @@ class Unary_Expression: public Node
     private:
         Node* expression;
         Token operation;
+        bool bracketed;
     public:
         Unary_Expression(Node* expression, Token operation);
         Token get_operator(void);
         Node* get_expression(void);
+        void set_bracketed(bool value);
+        bool is_bracketed(void);
 };
 
 #endif

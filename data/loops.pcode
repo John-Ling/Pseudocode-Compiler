@@ -11,7 +11,7 @@ NEXT Index
 Index <-- 0
 WHILE (Index < Limit AND Flag = TRUE)
     IF (Index = 7) THEN
-        Flag = false
+        Flag <-- FALSE
     ENDIF
     Index <-- Index + 1
 ENDWHILE

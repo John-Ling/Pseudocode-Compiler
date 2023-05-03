@@ -1,7 +1,14 @@
+DECLARE Name : STRING
+DECLARE Number : INTEGER
+Name <-- "John"
+Number <-- 34234
+
 IF (Name = "John") THEN
     OUTPUT "Your name is John"
+    OUTPUT "Other"
 ELSE
     OUTPUT "Your name is not John"
+    OUTPUT "Hello"
 ENDIF
 
 IF (Number > 324) THEN

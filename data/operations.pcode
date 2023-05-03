@@ -6,7 +6,7 @@ B <-- 6
 C <-- A + B
 
 OUTPUT C
-C = B * A
+C <-- B * A
 
 DECLARE D : INTEGER
 D <-- (A + B) * C - 54

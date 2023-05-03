@@ -16,8 +16,7 @@ class Code_Generator
         typedef std::string (Code_Generator::*nodeFunctionPointer)(Node*);
         std::string targetFilename;
         std::vector<Node* > nodes;
-        int pointer;
-        void advance(void);
+        std::string indentation = ""; // An altered version of this will be returned in nearly every function. By adding/removing tabs it determines the indentation of the generated code.
         std::string examine(Node* node);
         std::string convert_operator(Token token);
         std::string function(Node* node);

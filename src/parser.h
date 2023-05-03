@@ -33,6 +33,7 @@ class Parser
         Node* return_(void);
         Node* variable_declaration(void);
         Node* variable_assignment(void);
+        Node* identifier_(void);
         Node* expression(void);
         Node* logical_comparison(void);
         Node* equality(void);
