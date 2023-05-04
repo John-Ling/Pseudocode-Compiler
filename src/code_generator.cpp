@@ -1,6 +1,6 @@
 #include "code_generator.h"
 
-Code_Generator::Code_Generator(std::string filename, std::vector<Node*> nodes)
+Code_Generator::Code_Generator(std::string filename, std::vector<Node*> nodes,  std::unordered_map<std::string, std::string> identifierTable)
 {
     // remove .pcode file extension
     std::string editedFilename;
@@ -16,6 +16,7 @@ Code_Generator::Code_Generator(std::string filename, std::vector<Node*> nodes)
     this->targetFilename = editedFilename;
     this->nodes = nodes;
     this->indentation = "";
+    this->identifierTable = identifierTable;
 }
 
 // Iterate through vector of nodes and write generated code to the output file
@@ -47,7 +48,14 @@ std::string Code_Generator::examine(Node* node)
         {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}};
 
     std::string nodeName = node->get_node_name();
-    return (this->*nodeMap[nodeName])(node); // call and return function pointer
+    if (nodeMap.count(nodeName))
+    {
+        return (this->*nodeMap[nodeName])(node); // call and return function pointer
+    }
+    else
+    {
+        return "";
+    }
 }
 
 std::string Code_Generator::block_statement(std::vector<Node*> statements)
@@ -79,6 +87,28 @@ std::string Code_Generator::primitive(Node* node)
 {
     std::string generated = "";
     std::string type = static_cast<Primitive*>(node)->get_type();
+    if (type == Tokens::INTEGER)
+    {
+        generated = "int";
+    }
+    else if (type == Tokens::FLOAT)
+    {
+        generated = "float";
+    }
+    else if (type == Tokens::STRING)
+    {
+        generated = "str";
+    }
+    else if (type == Tokens::BOOLEAN)
+    {
+        generated = "bool";
+    }
+    return generated;
+}
+
+std::string Code_Generator::primitive(std::string type)
+{
+    std::string generated;
     if (type == Tokens::INTEGER)
     {
         generated = "int";
@@ -134,7 +164,7 @@ std::string Code_Generator::convert_operator(Token token)
 
     if (operatorMap.count(token.type))
     {
-        return operatorMap.at(token.type);
+        return operatorMap[token.type];
     }
     return token.value;
 }
@@ -186,7 +216,7 @@ std::string Code_Generator::if_(Node* node)
 
     if (convertedNode->is_else_node_present())
     {
-        generated += "else:\n";
+        generated += this->indentation + "else:\n";
         Else* elseNode = static_cast<Else*>(convertedNode->get_else_node());
         std::vector<Node*> statements = elseNode->get_statements();
         generated += block_statement(statements);
@@ -258,9 +288,11 @@ std::string Code_Generator::output(Node* node)
 
 std::string Code_Generator::input(Node* node)
 {
-    Input* convertedNode = static_cast<Input*>(node)   ;
+    Input* convertedNode = static_cast<Input*>(node);
     Identifier* identifier = convertedNode->get_identifier();
-    std::string generated = identifier->get_variable_name() + " = " + "input()";
+    std::string variableName = identifier->get_variable_name();
+    std::string type = primitive(this->identifierTable[variableName]);
+    std::string generated = variableName + " = " + type + "(input())";
     return generated;
 }
 

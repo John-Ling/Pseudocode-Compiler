@@ -13,6 +13,7 @@ class Parser
 {
     private:
         std::vector<Token> tokens;
+        std::unordered_map<std::string, std::string> identifierTable; // Stores the identifiers along with their types in a program. Will be used for type checking in code generation.
         int pointer;
         void parse_line(void);
         bool compare(std::string tokenType);
@@ -49,7 +50,7 @@ class Parser
         std::vector<Node*> nodes; // abstract syntax tree 
         Parser(std::vector<Token> tokens);
         int parse_tokens(void);
-        int get_pointer(void);
+        std::unordered_map<std::string, std::string> get_identifier_table(void);
 };
 
 #endif

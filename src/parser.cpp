@@ -29,6 +29,11 @@ int Parser::parse_tokens(void)
     return 0;
 }
 
+std::unordered_map<std::string, std::string> Parser::get_identifier_table(void)
+{
+    return this->identifierTable;
+}
+
 // helper functions
 
 // checks if the current token matches argument tokenType
@@ -90,7 +95,6 @@ void Parser::double_advance(void) // made this because I didn't like putting adv
     advance();
     advance();
 }
-
 
 // ast node functions
 
@@ -234,6 +238,9 @@ Node* Parser::variable_declaration(void)
     advance();
 
     Node* primitive = primitive_type();
+
+    // add name and type to identifierTable
+    this->identifierTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(primitive)->get_type();
     return new Variable_Declaration(identifier, primitive);
 }
 

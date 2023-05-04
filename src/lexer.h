@@ -1,6 +1,8 @@
 #ifndef Lexer_H
 #define Lexer_H
 
+// Lexer: For each line in the source file, Lexer will attempt to generate the correct tokens. Eventually the entire program will be represented as a vector of Tokens.
+
 #include <iostream>
 #include <unordered_map>
 #include <vector>

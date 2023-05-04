@@ -17,6 +17,7 @@ class Code_Generator
         std::string targetFilename;
         std::vector<Node* > nodes;
         std::string indentation = ""; // An altered version of this will be returned in nearly every function. By adding/removing tabs it determines the indentation of the generated code.
+        std::unordered_map<std::string, std::string> identifierTable; // maps identifiers to their types for type checking
         std::string examine(Node* node);
         std::string convert_operator(Token token);
         std::string function(Node* node);
@@ -29,6 +30,7 @@ class Code_Generator
         std::string literal(Node* node);
         std::string identifier(Node* node);
         std::string primitive(Node* node);
+        std::string primitive(std::string type);
         std::string variable_declaration(Node* node);
         std::string variable_assignment(Node* node);
         std::string output(Node* node);
@@ -39,7 +41,7 @@ class Code_Generator
         std::string call_arguments(Node* node);
         std::string block_statement(std::vector<Node*> statements);
     public:
-        Code_Generator(std::string filename, std::vector<Node*> nodes);
+        Code_Generator(std::string filename, std::vector<Node*> nodes, std::unordered_map<std::string, std::string> identifierTable);
         int generate_code(void);
 };
 
