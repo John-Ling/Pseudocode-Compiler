@@ -38,19 +38,11 @@ int Code_Generator::generate_code(void)
 // Examines the node the attribute pointer points to and returns correct python code as a string.
 std::string Code_Generator::examine(Node* node)
 {
-    static std::unordered_map<std::string, nodeFunctionPointer> nodeMap = { // unordered map of function pointers to quickly select the correct procedure based on the node's name
-        {AST_Node_Names::FUNCTION, &Code_Generator::function},
-        {AST_Node_Names::WHILE, &Code_Generator::while_}, {AST_Node_Names::IF, &Code_Generator::if_}, {AST_Node_Names::FOR, &Code_Generator::for_},
-        {AST_Node_Names::RETURN, &Code_Generator::return_}, {AST_Node_Names::LITERAL, &Code_Generator::literal},
-        {AST_Node_Names::IDENTIFIER, &Code_Generator::identifier}, {AST_Node_Names::DECLARATION, &Code_Generator::variable_declaration}, 
-        {AST_Node_Names::ASSIGNMENT, &Code_Generator::variable_assignment}, {AST_Node_Names::OUTPUT, &Code_Generator::output}, 
-        {AST_Node_Names::INPUT, &Code_Generator::input}, {AST_Node_Names::BINARY_EXPRESSION, &Code_Generator::binary_expression},
-        {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}};
-
     std::string nodeName = node->get_node_name();
     if (nodeMap.count(nodeName))
     {
-        return (this->*nodeMap[nodeName])(node); // call and return function pointer
+        std::string generated = (this->*nodeMap[nodeName])(node);
+        return generated; // call and return function pointer
     }
     else
     {
@@ -59,16 +51,7 @@ std::string Code_Generator::examine(Node* node)
 }
 
 std::string Code_Generator::block_statement(std::vector<Node*> statements)
-{
-    static std::unordered_map<std::string, nodeFunctionPointer> nodeMap = {
-        {AST_Node_Names::FUNCTION, &Code_Generator::function},
-        {AST_Node_Names::WHILE, &Code_Generator::while_}, {AST_Node_Names::IF, &Code_Generator::if_}, {AST_Node_Names::FOR, &Code_Generator::for_},
-        {AST_Node_Names::RETURN, &Code_Generator::return_}, {AST_Node_Names::LITERAL, &Code_Generator::literal},
-        {AST_Node_Names::IDENTIFIER, &Code_Generator::identifier}, {AST_Node_Names::DECLARATION, &Code_Generator::variable_declaration}, 
-        {AST_Node_Names::ASSIGNMENT, &Code_Generator::variable_assignment}, {AST_Node_Names::OUTPUT, &Code_Generator::output}, 
-        {AST_Node_Names::INPUT, &Code_Generator::input}, {AST_Node_Names::BINARY_EXPRESSION, &Code_Generator::binary_expression},
-        {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}};
-    
+{   
     std::string generated = "";
     this->indentation += '\t'; // add indentation
     for (unsigned int i = 0; i < statements.size(); i++) // generate code within block statement with correct indentation
@@ -103,6 +86,7 @@ std::string Code_Generator::primitive(Node* node)
     {
         generated = "bool";
     }
+    delete node;
     return generated;
 }
 
@@ -147,12 +131,15 @@ std::string Code_Generator::literal(Node* node)
     {
         generated = convertedNode->get_value();
     }
+    delete convertedNode;
     return generated;
 }
 
 std::string Code_Generator::identifier(Node* node)
 {
-    return static_cast<Identifier*>(node)->get_variable_name();
+    std::string identifierName = static_cast<Identifier*>(node)->get_variable_name();
+    delete node;
+    return identifierName;
 }
 
 std::string Code_Generator::convert_operator(Token token)
@@ -190,6 +177,10 @@ std::string Code_Generator::function(Node* node)
     generated += ") -> " + primitive(returnType) + ":\n";
     std::vector<Node*> statements = convertedNode->get_statements();
     generated += block_statement(statements);
+
+    delete functionArguments;
+    delete functionName;
+    delete convertedNode;
     return generated;
 }
 
@@ -202,6 +193,8 @@ std::string Code_Generator::while_(Node* node)
 
     std::vector<Node*> statements = convertedNode->get_statements();
     generated += block_statement(statements);
+
+    delete convertedNode;
     return generated;
 }
 
@@ -209,19 +202,21 @@ std::string Code_Generator::if_(Node* node)
 {
     std::string generated = "if ";
     If* convertedNode = static_cast<If*>(node);
+    std::cout << convertedNode->get_condition()->get_node_name();
     generated += examine(convertedNode->get_condition()) + ":\n";
 
     std::vector<Node*> statements = convertedNode->get_statements();
     generated += block_statement(statements);
-
     if (convertedNode->is_else_node_present())
     {
         generated += this->indentation + "else:\n";
         Else* elseNode = static_cast<Else*>(convertedNode->get_else_node());
         std::vector<Node*> statements = elseNode->get_statements();
         generated += block_statement(statements);
+        delete elseNode;
     }
 
+    delete convertedNode;
     return generated;
 }
 
@@ -243,32 +238,46 @@ std::string Code_Generator::for_(Node* node)
     generated += indexVariable->get_variable_name() + ' ' + "in range(" + examine(start) + ", " + examine(end) + step + "):\n";
     std::vector<Node*> statements = convertedNode->get_statements();
     generated += block_statement(statements);
+    
+    delete indexVariable;
+    delete convertedNode;
+
     return generated;
 }
 
 std::string Code_Generator::return_(Node* node)
 {
-    std::string generated = "return ";
-    return generated + examine(static_cast<Return*>(node)->get_expression());
+    std::string generated = "return " + examine(static_cast<Return*>(node)->get_expression());
+    delete node;
+    return generated;
 }
 
 std::string Code_Generator::variable_declaration(Node* node) // python is not strongly typed so variable declarations are not needed
 {
-    node->get_node_name(); // put here so compiler doesn't throw a fit
+    std::cout << "Variable Declaration\n";
+    Variable_Declaration* convertedNode = static_cast<Variable_Declaration*>(node);
+    delete convertedNode->get_identifier();
+    delete convertedNode->get_type();
+    delete convertedNode;
     return "";
 }
 
 std::string Code_Generator::variable_assignment(Node* node)
 {
+    std::cout << "Assignment\n";
     Variable_Assignment* convertedNode = static_cast<Variable_Assignment*>(node);
     Identifier* variable = convertedNode->get_identifier();
     Node* expression = convertedNode->get_expression();
     std::string generated = variable->get_variable_name() + " = " + examine(expression);
+
+    delete variable;
+    delete convertedNode;
     return generated;
 }
 
 std::string Code_Generator::output(Node* node)
 {
+    std::cout << "Output\n";
     std::string generated = "print(";
     Output* convertedNode = static_cast<Output*>(node);
     std::vector<Node*> expressions = convertedNode->get_expressions();
@@ -283,6 +292,7 @@ std::string Code_Generator::output(Node* node)
         generated.pop_back();
     }
     generated += ')';
+    delete convertedNode;
     return generated;
 }
 
@@ -293,35 +303,45 @@ std::string Code_Generator::input(Node* node)
     std::string variableName = identifier->get_variable_name();
     std::string type = primitive(this->identifierTable[variableName]);
     std::string generated = variableName + " = " + type + "(input())";
+    
+    delete identifier;
+    delete convertedNode;
+    return generated;
+}
+
+std::string Code_Generator::bracketed_expression(Node* node)
+{
+    Bracketed_Expression* convertedNode = static_cast<Bracketed_Expression*>(node);
+
+    std::string generated = "(" + examine(convertedNode->get_expression()) + ")";
+
+    delete convertedNode;
     return generated;
 }
 
 std::string Code_Generator::binary_expression(Node* node)
 {
+    std::cout << "Binary Expression\n";
     Binary_Expression* convertedNode = static_cast<Binary_Expression*>(node);
     Node* leftExpression = convertedNode->get_left_expression();
+
     Node* rightExpression = convertedNode->get_right_expression();
     Token operation = convertedNode->get_operator();
     std::string generated = examine(leftExpression) + convert_operator(operation) + examine(rightExpression);
 
-    if (convertedNode->is_bracketed())
-    {
-        return '(' + generated + ')';
-    }
+    delete convertedNode;
     return generated;
 }
 
 std::string Code_Generator::unary_expression(Node* node)
 {
+    std::cout << "Unary Expression\n";
     Unary_Expression* convertedNode = static_cast<Unary_Expression*>(node);
     Token operation = convertedNode->get_operator();
     Node* expression = convertedNode->get_expression();
     std::string generated = convert_operator(operation) + examine(expression);
 
-    if (convertedNode->is_bracketed())
-    {
-        return '(' + generated + ')';
-    }
+    delete convertedNode;
     return generated;
 }
 
@@ -331,14 +351,19 @@ std::string Code_Generator::function_call(Node* node)
     Identifier* functionName = convertedNode->get_function_name();
     std::string generated = functionName->get_variable_name() + '(';
 
-    std::vector<Node*> arguments = convertedNode->get_arguments();
-    for (unsigned int i = 0; i < arguments.size(); i++)
+    Call_Arguments* arguments = convertedNode->get_arguments();
+    std::vector<Node*> argumentVector = arguments->get_arguments();
+    for (unsigned int i = 0; i < argumentVector.size(); i++)
     {
-        std::string argument = examine(arguments[i]);
+        std::string argument = examine(argumentVector[i]);
         generated += argument + ", ";
     }
     generated.pop_back();
     generated.pop_back();
     generated += ')';
+
+    delete functionName;
+    delete arguments;
+    delete convertedNode;
     return generated;
 }

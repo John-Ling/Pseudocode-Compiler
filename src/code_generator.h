@@ -16,8 +16,16 @@ class Code_Generator
         typedef std::string (Code_Generator::*nodeFunctionPointer)(Node*);
         std::string targetFilename;
         std::vector<Node* > nodes;
-        std::string indentation = ""; // An altered version of this will be returned in nearly every function. By adding/removing tabs it determines the indentation of the generated code.
+        std::string indentation = ""; // Determines indentation of code. Usually used in block_statement().
         std::unordered_map<std::string, std::string> identifierTable; // maps identifiers to their types for type checking
+        std::unordered_map<std::string, nodeFunctionPointer> nodeMap = {
+        {AST_Node_Names::FUNCTION, &Code_Generator::function},
+        {AST_Node_Names::WHILE, &Code_Generator::while_}, {AST_Node_Names::IF, &Code_Generator::if_}, {AST_Node_Names::FOR, &Code_Generator::for_},
+        {AST_Node_Names::RETURN, &Code_Generator::return_}, {AST_Node_Names::LITERAL, &Code_Generator::literal},
+        {AST_Node_Names::IDENTIFIER, &Code_Generator::identifier}, {AST_Node_Names::DECLARATION, &Code_Generator::variable_declaration}, 
+        {AST_Node_Names::ASSIGNMENT, &Code_Generator::variable_assignment}, {AST_Node_Names::OUTPUT, &Code_Generator::output}, 
+        {AST_Node_Names::INPUT, &Code_Generator::input}, {AST_Node_Names::BINARY_EXPRESSION, &Code_Generator::binary_expression}, {AST_Node_Names::BRACKETED_EXPRESSION, &Code_Generator::bracketed_expression},
+        {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}};
         std::string examine(Node* node);
         std::string convert_operator(Token token);
         std::string function(Node* node);
@@ -35,6 +43,7 @@ class Code_Generator
         std::string variable_assignment(Node* node);
         std::string output(Node* node);
         std::string input(Node* node);
+        std::string bracketed_expression(Node* node);
         std::string binary_expression(Node* node);
         std::string unary_expression(Node* node);
         std::string function_call(Node* node);

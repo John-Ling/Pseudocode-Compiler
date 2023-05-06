@@ -141,6 +141,7 @@ namespace AST_Node_Names // Internal node names for abstract syntax tree. I woul
 	const std::string ASSIGNMENT = "variable_assignment";
 	const std::string OUTPUT = "output";
 	const std::string INPUT = "input";
+	const std::string BRACKETED_EXPRESSION = "bracketed_expression";
 	const std::string BINARY_EXPRESSION = "binary_expression";
 	const std::string UNARY_EXPRESSION = "unary_expression";
 	const std::string FUNCTION_ARGUMENTS = "function_arguments";

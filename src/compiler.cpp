@@ -25,7 +25,7 @@ int Compiler::compile(void)
     }
 
     // Code Generation
-    Code_Generator generator(this->sourceFile, parser.nodes, parser.get_identifier_table());
+    Code_Generator generator(this->sourceFile, parser.nodes, parser.get_symbol_table());
     std::cout << "Building Code\n";
     if (generator.generate_code() == 1)
     {

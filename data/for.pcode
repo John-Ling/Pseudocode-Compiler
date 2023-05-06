@@ -1,3 +1,7 @@
+DECLARE Index : INTEGER
+DECLARE Limit : INTEGER
+Limit <-- 10
+
 FOR Index <-- 0 TO Limit
     OUTPUT Index
 NEXT Index

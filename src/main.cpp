@@ -9,7 +9,8 @@
 // Stages of Development
 // Lexer: Done
 // Parser: Done
-// Code generation: Current
+// Code generation: Done
+// Extra thing: Semantic Analysis + Extra pseudocode features such as arrays, file handling etc
 
 int main(int argc, char* argv[])
 {

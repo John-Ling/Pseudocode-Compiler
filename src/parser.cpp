@@ -29,9 +29,9 @@ int Parser::parse_tokens(void)
     return 0;
 }
 
-std::unordered_map<std::string, std::string> Parser::get_identifier_table(void)
+std::unordered_map<std::string, std::string> Parser::get_symbol_table(void)
 {
-    return this->identifierTable;
+    return this->symbolTable;
 }
 
 // helper functions
@@ -239,8 +239,8 @@ Node* Parser::variable_declaration(void)
 
     Node* primitive = primitive_type();
 
-    // add name and type to identifierTable
-    this->identifierTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(primitive)->get_type();
+    // add name and type to symbolTable
+    this->symbolTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(primitive)->get_type();
     return new Variable_Declaration(identifier, primitive);
 }
 
@@ -529,17 +529,7 @@ Node* Parser::primary(void)
         Node* expressionNode = expression();
         advance();
         match(Tokens::RBRACKET);
-
-        if (expressionNode->get_node_name() == AST_Node_Names::BINARY_EXPRESSION)
-        {
-            static_cast<Binary_Expression*>(expressionNode)->set_bracketed(true);
-        }
-        else
-        {
-            static_cast<Unary_Expression*>(expressionNode)->set_bracketed(true);
-        }
-
-        return static_cast<Node*>(expressionNode);
+        return new Bracketed_Expression(expressionNode);
     }
     else
     {

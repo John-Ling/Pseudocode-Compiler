@@ -135,7 +135,7 @@ class Function_Call: public Node
     public:
         Function_Call(Node* functionName, Node* arguments);
         Identifier* get_function_name(void);
-        std::vector<Node*> get_arguments(void);
+        Call_Arguments* get_arguments(void);
 };
 
 class While: public Node
@@ -205,20 +205,26 @@ class Return: public Node
         Node* get_expression(void);
 };
 
+class Bracketed_Expression: public Node
+{
+    private:
+        Node* expression;
+    public:
+        Bracketed_Expression(Node* expression);
+        Node* get_expression(void);
+};
+
 class Binary_Expression: public Node
 {
     private:
         Token operation;
         Node* left;
         Node* right;
-        bool bracketed;
     public:
         Binary_Expression(Node* left, Token operation, Node* right);
         Token get_operator(void);
         Node* get_left_expression(void);
         Node* get_right_expression(void);
-        void set_bracketed(bool value);
-        bool is_bracketed(void);
 };
 
 class Unary_Expression: public Node
@@ -226,13 +232,10 @@ class Unary_Expression: public Node
     private:
         Node* expression;
         Token operation;
-        bool bracketed;
     public:
         Unary_Expression(Node* expression, Token operation);
         Token get_operator(void);
         Node* get_expression(void);
-        void set_bracketed(bool value);
-        bool is_bracketed(void);
 };
 
 #endif

@@ -159,6 +159,7 @@ void Function_Arguments::add_argument(Node* identifier, Node* type)
     std::string identifierName = static_cast<Identifier*>(identifier)->get_variable_name();
     this->argumentNames.push_back(identifierName);
     this->argumentTypes.push_back(type);
+    delete identifier;
     return;
 }
 
@@ -184,9 +185,9 @@ Identifier* Function_Call::get_function_name(void)
     return static_cast<Identifier*>(this->functionName);
 }
 
-std::vector<Node*> Function_Call::get_arguments(void)
+Call_Arguments* Function_Call::get_arguments(void)
 {
-    return static_cast<Call_Arguments*>(this->arguments)->get_arguments();
+    return static_cast<Call_Arguments*>(this->arguments);
 }
 
 Call_Arguments::Call_Arguments(void)
@@ -342,13 +343,23 @@ std::vector<Node*> Else::get_statements(void)
     return this->statements;
 }
 
+Bracketed_Expression::Bracketed_Expression(Node* expression)
+{
+    set_name(AST_Node_Names::BRACKETED_EXPRESSION);
+    this->expression = expression;
+}
+
+Node* Bracketed_Expression::get_expression(void)
+{
+    return this->expression;
+}
+
 Binary_Expression::Binary_Expression(Node* left, Token operation, Node* right)
 {
     set_name(AST_Node_Names::BINARY_EXPRESSION);
     this->left = left;
     this->operation = operation;
     this->right = right;
-    this->bracketed = false;
 }
 
 Node* Binary_Expression::get_left_expression(void)
@@ -366,22 +377,11 @@ Node* Binary_Expression::get_right_expression(void)
     return this->right;
 }
 
-void Binary_Expression::set_bracketed(bool value)
-{
-    this->bracketed = value;
-}
-
-bool Binary_Expression::is_bracketed(void)
-{
-    return this->bracketed;
-}
-
 Unary_Expression::Unary_Expression(Node* expression, Token operation)
 {
     set_name(AST_Node_Names::UNARY_EXPRESSION);
     this->expression = expression;
     this->operation = operation;
-    this->bracketed = false;
 }
 
 Node* Unary_Expression::get_expression(void)
@@ -392,14 +392,4 @@ Node* Unary_Expression::get_expression(void)
 Token Unary_Expression::get_operator(void)
 {
     return this->operation;
-}
-
-void Unary_Expression::set_bracketed(bool value)
-{
-    this->bracketed = value;
-}
-
-bool Unary_Expression::is_bracketed(void)
-{
-    return this->bracketed;
 }
