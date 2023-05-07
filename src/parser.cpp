@@ -354,7 +354,8 @@ Node* Parser::return_(void)
 Node* Parser::function(void)
 {
     match(Tokens::IDENTIFIER);
-    Node* functionName = new Identifier(this->tokens[this->pointer]);
+    Identifier* functionName = new Identifier(this->tokens[this->pointer]);
+    std::string name = functionName->get_variable_name(); 
     advance();
     match(Tokens::LBRACKET);
     advance();
@@ -367,10 +368,11 @@ Node* Parser::function(void)
 
     Node* returnType = primitive_type();
     advance();
+    this->symbolTable[name] = static_cast<Primitive*>(returnType)->get_type(); // Add function name and its return type to symbol table
 
     const std::vector<std::string> TERMINATORS = {Tokens::ENDFUNCTION};
     std::vector<Node*> statements = block_statement(TERMINATORS);
-    return new Function(functionName, returnType, arguments, statements);
+    return new Function(static_cast<Node*>(functionName), returnType, arguments, statements);
 }
 
 Node* Parser::function_arguments(void)

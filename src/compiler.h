@@ -4,13 +4,14 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "semantics.h"
 #include "code_generator.h"
 
 class Compiler
 {    
     private:
         std::string sourceFile;
-    public:
+    public: 
         Compiler(std::string filename);
         int compile(void);
 };

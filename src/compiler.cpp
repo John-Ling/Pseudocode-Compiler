@@ -24,6 +24,14 @@ int Compiler::compile(void)
         return 1;
     }
 
+    // Semantic Analysis
+    Semantic_Analyser semanticAnalyser(parser.nodes, parser.get_symbol_table());
+    std::cout << "Performing Semantic Analysis\n";
+    if (semanticAnalyser.semantic_analysis() == 1)
+    {
+        return 1;
+    }
+
     // Code Generation
     Code_Generator generator(this->sourceFile, parser.nodes, parser.get_symbol_table());
     std::cout << "Building Code\n";

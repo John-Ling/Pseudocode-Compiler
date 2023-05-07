@@ -202,7 +202,6 @@ std::string Code_Generator::if_(Node* node)
 {
     std::string generated = "if ";
     If* convertedNode = static_cast<If*>(node);
-    std::cout << convertedNode->get_condition()->get_node_name();
     generated += examine(convertedNode->get_condition()) + ":\n";
 
     std::vector<Node*> statements = convertedNode->get_statements();
@@ -254,7 +253,6 @@ std::string Code_Generator::return_(Node* node)
 
 std::string Code_Generator::variable_declaration(Node* node) // python is not strongly typed so variable declarations are not needed
 {
-    std::cout << "Variable Declaration\n";
     Variable_Declaration* convertedNode = static_cast<Variable_Declaration*>(node);
     delete convertedNode->get_identifier();
     delete convertedNode->get_type();
@@ -264,7 +262,6 @@ std::string Code_Generator::variable_declaration(Node* node) // python is not st
 
 std::string Code_Generator::variable_assignment(Node* node)
 {
-    std::cout << "Assignment\n";
     Variable_Assignment* convertedNode = static_cast<Variable_Assignment*>(node);
     Identifier* variable = convertedNode->get_identifier();
     Node* expression = convertedNode->get_expression();
@@ -277,7 +274,6 @@ std::string Code_Generator::variable_assignment(Node* node)
 
 std::string Code_Generator::output(Node* node)
 {
-    std::cout << "Output\n";
     std::string generated = "print(";
     Output* convertedNode = static_cast<Output*>(node);
     std::vector<Node*> expressions = convertedNode->get_expressions();
@@ -321,7 +317,6 @@ std::string Code_Generator::bracketed_expression(Node* node)
 
 std::string Code_Generator::binary_expression(Node* node)
 {
-    std::cout << "Binary Expression\n";
     Binary_Expression* convertedNode = static_cast<Binary_Expression*>(node);
     Node* leftExpression = convertedNode->get_left_expression();
 
@@ -335,7 +330,6 @@ std::string Code_Generator::binary_expression(Node* node)
 
 std::string Code_Generator::unary_expression(Node* node)
 {
-    std::cout << "Unary Expression\n";
     Unary_Expression* convertedNode = static_cast<Unary_Expression*>(node);
     Token operation = convertedNode->get_operator();
     Node* expression = convertedNode->get_expression();

@@ -57,4 +57,50 @@ class Reached_End_Of_File: public Error  // signal to end the parsing process
         void display_problem(void);
 };
 
+class Type_Mismatch: public Error
+{
+    private:
+        std::string expectedType;
+        std::string receivedType;
+    public:
+        Type_Mismatch(std::string expectedType, std::string receivedType);
+        void display_problem(void);
+};
+
+class Undeclared_Variable: public Error
+{
+    private:
+        std::string variableName;
+    public:
+        Undeclared_Variable(std::string variableName);
+        void display_problem(void);
+};
+
+class Improper_Keyword_Placement: public Error
+{
+    private:
+        std::string keyword;
+    public:
+        Improper_Keyword_Placement(std::string keyword);
+        void display_problem(void);
+};
+
+class Missing_Keyword: public Error
+{
+    private:
+        std::string keyword;
+    public:
+        Missing_Keyword(std::string keyword);
+        void display_problem(void);
+};
+
+class Redeclaration: public Error
+{
+    private:
+        std::string variableName;
+    public:
+        Redeclaration(std::string variableName);
+        void display_problem(void);
+};
+
 #endif

@@ -35,6 +35,7 @@ std::string Literal::get_value(void)
 Identifier::Identifier(void) 
 {
     set_name(AST_Node_Names::IDENTIFIER);
+    this->declared = false; // declared will be set to true later on in semantic analysis
 }
 
 Identifier::Identifier(Token token)
@@ -46,6 +47,17 @@ Identifier::Identifier(Token token)
 std::string Identifier::get_variable_name(void) 
 { 
     return this->variableName; 
+}
+
+bool Identifier::get_declared(void)
+{
+    return this->declared;
+}
+
+void Identifier::set_declared(bool value)
+{
+    this->declared = value;
+    return;
 }
 
 Primitive::Primitive(void)

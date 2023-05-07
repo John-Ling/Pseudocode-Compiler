@@ -34,10 +34,13 @@ class Identifier: public Node
 {
     private:
         std::string variableName;
+        bool declared;
     public:
         Identifier(void);
         Identifier(Token token);
         std::string get_variable_name(void);
+        bool get_declared(void);
+        void set_declared(bool value);
 };
 
 class Primitive: public Node

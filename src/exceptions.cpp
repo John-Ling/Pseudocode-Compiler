@@ -60,3 +60,59 @@ void Missed_Terminating_Token::display_problem(void)
 
 Reached_End_Of_File::Reached_End_Of_File(void) { set_type(Exception_Types::END); }
 void Reached_End_Of_File::display_problem(void) { return; }
+
+Type_Mismatch::Type_Mismatch(std::string expectedType, std::string receivedType)
+{
+    this->expectedType = expectedType;
+    this->receivedType = receivedType;
+}
+
+void Type_Mismatch::display_problem(void)
+{
+    std::cout << "Semantic Error: Expression of type " << this->receivedType << " does not match variable of type " << this->expectedType << '\n';
+    return;
+}
+
+Undeclared_Variable::Undeclared_Variable(std::string variableName)
+{
+    this->variableName = variableName;
+}
+
+void Undeclared_Variable::display_problem(void)
+{
+    std::cout << "Semantic Error: Variable " << this->variableName << " has not been declared.\n";
+    return;
+}
+
+Improper_Keyword_Placement::Improper_Keyword_Placement(std::string keyword)
+{
+    this->keyword = keyword;
+}
+
+void Improper_Keyword_Placement::display_problem(void)
+{
+    std::cout << "Semantic Error: Keyword " << this->keyword << " is in improper location\n";
+    return;
+}
+
+Missing_Keyword::Missing_Keyword(std::string keyword)
+{
+    this->keyword = keyword;
+}
+
+void Missing_Keyword::display_problem(void)
+{
+    std::cout << "Semantic Error: " << this->keyword << " is missing\n";
+    return;
+}
+
+Redeclaration::Redeclaration(std::string variableName)
+{
+    this->variableName = variableName;
+}
+
+void Redeclaration::display_problem(void)
+{
+    std::cout << "Semantic Error: Redeclaration of variable " << this->variableName << '\n';
+    return;
+}
