@@ -1,4 +1,4 @@
-#include "code_generator.h"
+#include "code_generator.hpp"
 
 Code_Generator::Code_Generator(std::string filename, std::vector<Node*> nodes,  std::unordered_map<std::string, std::string> identifierTable)
 {

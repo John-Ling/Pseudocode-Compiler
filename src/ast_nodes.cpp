@@ -1,4 +1,4 @@
-#include "ast_nodes.h"
+#include "ast_nodes.hpp"
 
 void Node::set_name(std::string value)
 {

@@ -1,14 +1,14 @@
-#ifndef Code_Generator_H
-#define Code_Generator_H
+#ifndef Code_Generator_Hpp
+#define Code_Generator_Hpp
 
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <fstream>
 
-#include "token.h"
-#include "ast_nodes.h"
-#include "constants.h"
+#include "token.hpp"
+#include "ast_nodes.hpp"
+#include "constants.hpp"
 
 class Code_Generator
 {

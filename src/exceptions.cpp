@@ -1,4 +1,4 @@
-#include "exceptions.h"
+#include "exceptions.hpp"
 
 std::string Error::get_type(void)
 {

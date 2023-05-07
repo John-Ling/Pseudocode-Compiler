@@ -1,9 +1,9 @@
-#ifndef Exceptions_H
-#define Exceptions_H
+#ifndef Exceptions_Hpp
+#define Exceptions_Hpp
 
 #include <iostream>
 #include <string>
-#include "constants.h"
+#include "constants.hpp"
 
 class Error
 {

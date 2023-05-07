@@ -1,4 +1,4 @@
-#include "semantics.h"
+#include "semantics.hpp"
 
 Semantic_Analyser::Semantic_Analyser(std::vector<Node*> nodes, std::unordered_map<std::string, std::string> symbolTable)
 {

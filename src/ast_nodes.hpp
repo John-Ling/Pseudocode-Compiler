@@ -1,13 +1,13 @@
-#ifndef Ast_Nodes_H
-#define Ast_Nodes_H
+#ifndef Ast_Nodes_Hpp
+#define Ast_Nodes_Hpp
 
 // definitions of all abstract syntax tree nodes
 
 #include <vector>
 #include <unordered_map>
-#include "token.h"
-#include "constants.h"
-#include "exceptions.h"
+#include "token.hpp"
+#include "constants.hpp"
+#include "exceptions.hpp"
 
 class Node
 {

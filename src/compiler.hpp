@@ -1,11 +1,11 @@
-#ifndef Compiler_H
-#define Compiler_H
+#ifndef Compiler_Hpp
+#define Compiler_Hpp
 #include <iostream>
 
-#include "lexer.h"
-#include "parser.h"
-#include "semantics.h"
-#include "code_generator.h"
+#include "lexer.hpp"
+#include "parser.hpp"
+#include "semantics.hpp"
+#include "code_generator.hpp"
 
 class Compiler
 {    

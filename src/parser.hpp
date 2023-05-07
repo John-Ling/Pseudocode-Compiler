@@ -1,13 +1,13 @@
-#ifndef Parser_H
-#define Parser_H
+#ifndef Parser_Hpp
+#define Parser_Hpp
 
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 
-#include "token.h"
-#include "ast_nodes.h"
-#include "exceptions.h"
+#include "token.hpp"
+#include "ast_nodes.hpp"
+#include "exceptions.hpp"
 
 class Parser
 {

@@ -1,5 +1,5 @@
-#ifndef Semantics_H
-#define Semantics_H
+#ifndef Semantics_Hpp
+#define Semantics_Hpp
 
 // Performs semantic analysis to detect semantic errors (i.e type mismatches, return statements outside functions, undeclared variables etc) before passing the nodes to the code generator
 
@@ -7,9 +7,9 @@
 #include <vector>
 #include <unordered_map>
 
-#include "ast_nodes.h"
-#include "token.h"
-#include "constants.h"
+#include "ast_nodes.hpp"
+#include "token.hpp"
+#include "constants.hpp"
 
 class Semantic_Analyser
 {

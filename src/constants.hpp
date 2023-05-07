@@ -1,5 +1,5 @@
-#ifndef Constants_H
-#define Constants_H
+#ifndef Constants_Hpp
+#define Constants_Hpp
 
 #include <string>
 #include <vector>

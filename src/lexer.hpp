@@ -1,5 +1,5 @@
-#ifndef Lexer_H
-#define Lexer_H
+#ifndef Lexer_Hpp
+#define Lexer_Hpp
 
 // Lexer: For each line in the source file, Lexer will attempt to generate the correct tokens. Eventually the entire program will be represented as a vector of Tokens.
 
@@ -9,9 +9,9 @@
 #include <fstream>
 #include <string>
 
-#include "token.h"
-#include "constants.h"
-#include "exceptions.h"
+#include "token.hpp"
+#include "constants.hpp"
+#include "exceptions.hpp"
 
 class Lexer
 {

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "compiler.h"
+#include "compiler.hpp"
 
 // This compiler will take the A Level Computer Science language "psuedocode" and translate to python then run the generated python file with the interpreter
 // Author: John Ling
