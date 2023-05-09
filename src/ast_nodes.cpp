@@ -76,6 +76,91 @@ std::string Primitive::get_type(void)
     return this->type;
 }
 
+Array::Array(void)
+{
+    set_name(AST_Node_Names::ARRAY_DECLARATION);
+}
+
+Array::Array(Node* type, std::vector<Literal*> lowerBounds, std::vector<Literal*> upperBounds)
+{
+    set_name(AST_Node_Names::ARRAY_DECLARATION);
+    this->type = type;
+    
+    if (lowerBounds.size() > 2 || lowerBounds.size() == 0)
+    {
+        throw Generic_Error("Too many or 0 lower bounds have been provided for array.");
+    }
+
+    if (upperBounds.size() > 2 || upperBounds.size() == 0)
+    {
+        throw Generic_Error("Too many or 0 upper bounds have been provided for array.");
+    }
+
+    for (unsigned int i = 0; i < 2; i++) // validation and assignment code
+    {
+        if (upperBounds[i]->get_value() == "0")
+        {
+            throw Generic_Error("Upper bound for array cannot be 0. ");
+        }
+        if (lowerBounds[i]->get_value() != "0" && lowerBounds[i]->get_value() != "1")
+        {
+            throw Generic_Error("Lower bound for array must be 0 or 1.");
+        }
+
+        this->lowerBounds[i] = lowerBounds[i];
+        this->upperBounds[i] = upperBounds[i];
+    }
+}
+
+Primitive* Array::get_type(void)
+{
+    return static_cast<Primitive*>(this->type);
+}
+
+std::vector<Literal*> Array::get_lower_bounds(void)
+{
+    return this->lowerBounds;
+}
+
+std::vector<Literal*> Array::get_upper_bounds(void)
+{
+    return this->upperBounds;
+}
+
+Array_Assignment::Array_Assignment(Node* identifier, Node* expression, std::vector<Node*> indexExpressions)
+{
+    set_name(AST_Node_Names::ARRAY_ASSIGNMENT);
+    this->identifier = identifier;
+    this->expression = expression;
+    this->indexExpressions = indexExpressions;
+}
+
+Identifier* Array_Assignment::get_identifier(void)
+{
+    return static_cast<Identifier*>(this->identifier);
+}
+
+Node* Array_Assignment::get_expression(void)
+{
+    return this->expression;
+}
+
+std::vector<Node*> Array_Assignment::get_index_expressions(void)
+{
+    return this->indexExpressions;
+}
+
+Array_Expression::Array_Expression(std::vector<Node*> indexExpressions)
+{
+    set_name(AST_Node_Names::ARRAY_EXPRESSION);
+    this->indexExpressions = indexExpressions;
+}
+
+std::vector<Node*> Array_Expression::get_index_expressions(void)
+{
+    return this->indexExpressions;
+}
+
 Variable_Declaration::Variable_Declaration(Node* identifier, Node* type)
 {
     set_name(AST_Node_Names::DECLARATION);

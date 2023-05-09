@@ -10,14 +10,15 @@ void Error::set_type(std::string type)
     this->TYPE = type;
 }
 
-Generic_Error::Generic_Error(void)
+Generic_Error::Generic_Error(std::string errorMessage)
 {
     set_type(Exception_Types::GENERIC);
+    this->errorMessage = errorMessage;
 }
 
 void Generic_Error::display_problem(void)
 {
-    std::cout << "Generic Error: Good luck debugging this lol\n";
+    std::cout << "Generic Error: " << this->errorMessage << '\n';
     return;
 }
 

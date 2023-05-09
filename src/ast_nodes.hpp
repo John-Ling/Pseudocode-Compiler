@@ -53,6 +53,42 @@ class Primitive: public Node
         std::string get_type(void);
 };
 
+class Array: public Node
+{
+    private: // array can have up to two lower and upper bounds if it a 2D array
+        Node* type;
+        std::vector<Literal*> lowerBounds; // Refers to the index of the first array can be 1 or 0
+        std::vector<Literal*> upperBounds; // Refers to the size of the array cannot be 0
+    public:
+        Array(void);
+        Array(Node* token, std::vector<Literal*> lowerBounds, std::vector<Literal*> upperBounds);
+        Primitive* get_type(void);
+        std::vector<Literal*> get_lower_bounds(void);
+        std::vector<Literal*> get_upper_bounds(void);
+};
+
+class Array_Assignment: public Node
+{
+    private:
+        Node* expression;
+        std::vector<Node*> indexExpressions; // There can be potentially two index expressions if it's a 2D array 
+        Node* identifier; // array name
+    public:
+        Array_Assignment(Node* identifier, Node* expression, std::vector<Node*> indexExpressions);
+        Node* get_expression(void);
+        Identifier* get_identifier(void);
+        std::vector<Node*> get_index_expressions(void);
+};
+
+class Array_Expression: public Node
+{
+    private:
+        std::vector<Node*> indexExpressions;
+    public:
+        Array_Expression(std::vector<Node*> indexExpressions);
+        std::vector<Node*> get_index_expressions(void);
+};
+
 class Variable_Declaration: public Node
 {
     private:

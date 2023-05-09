@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+// All keywords in pseudocode modify to change names or add new functionality to pseudocode. Make sure to update lexer.hpp with your new keywords.
 namespace Keywords // modify to change the keyword for a specific action i.e change "RETURN" to "wumbo" to make "wumbo" the return keyword.
 {
 	// PSEUDOCODE KEYWORDS
@@ -36,6 +37,8 @@ namespace Keywords // modify to change the keyword for a specific action i.e cha
 	const std::string NEXT = "NEXT";
 	const std::string TO = "TO";
 	const std::string STEP = "STEP";
+	const std::string ARRAY = "ARRAY";
+	const std::string OF = "OF";
 
 	// SINGLE CHARACTER KEYWORDS
 	const std::string ADDITION = "+";
@@ -91,6 +94,8 @@ namespace Tokens // Internal token names for compiler to use. I wouldn't touch t
 	const std::string NEXT = "[NEXT]";
 	const std::string TO = "[TO]";
 	const std::string STEP = "[STEP]";
+	const std::string ARRAY = "[ARRAY]";
+	const std::string OF = "[OF]";
 
 	// TOKEN CHARACTERS
 	const std::string ADDITION = "[ADDITION]";
@@ -118,12 +123,6 @@ namespace Tokens // Internal token names for compiler to use. I wouldn't touch t
 	// Misc
 	const std::string END_OF_FILE = "[EOF]";
 	const std::string END_OF_LINE = "[EOL]";
-	const std::vector<std::string> OPERATORS = { // add to this vector when new operators are added
-		AND, OR, EQUAL, NOT_EQUAL, GREATER, 
-		GREATER_EQUAL, LESSER, LESSER_EQUAL,
-		ADDITION, SUBTRACTION, MULTIPLICATION,
-		DIVISION, MOD, NOT, LBRACKET, RBRACKET,
-		LSQUARE, RSQUARE, COMMA};
 }
 
 namespace AST_Node_Names // Internal node names for abstract syntax tree. I wouldn't touch these.
@@ -147,6 +146,9 @@ namespace AST_Node_Names // Internal node names for abstract syntax tree. I woul
 	const std::string FUNCTION_ARGUMENTS = "function_arguments";
 	const std::string FUNCTION_CALL = "function_call";
 	const std::string CALL_ARGUMENTS = "call_arguments";
+	const std::string ARRAY_DECLARATION = "array_declaration";
+	const std::string ARRAY_EXPRESSION = "array_expression";
+	const std::string ARRAY_ASSIGNMENT = "array_assignment";
 }
 
 namespace Exception_Types // Internal exception names for compile. I wouldn't touch these

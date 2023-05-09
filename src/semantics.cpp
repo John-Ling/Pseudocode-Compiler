@@ -149,7 +149,7 @@ std::string Semantic_Analyser::typecheck_expression(Node* node)
             {
                 return this->symbolTable[static_cast<Identifier*>(node)->get_variable_name()];
             }
-            throw Generic_Error();
+            throw Generic_Error("Could not find identifier in symbol table.");
         }
         else if (node->get_node_name() == AST_Node_Names::FUNCTION_CALL)
         {
@@ -159,7 +159,7 @@ std::string Semantic_Analyser::typecheck_expression(Node* node)
             {
                 return this->symbolTable[functionName];
             }
-            throw Generic_Error();
+            throw Generic_Error("Could not find identifier in symbol table.");
         }
     }
 

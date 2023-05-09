@@ -27,7 +27,7 @@ class Lexer
 			{Keywords::ADDITION, Tokens::ADDITION}, {Keywords::SUBTRACTION, Tokens::SUBTRACTION}, {Keywords::MULTIPLICATION, Tokens::MULTIPLICATION},
 			{Keywords::EQUAL, Tokens::EQUAL}, {Keywords::DIVISION, Tokens::DIVISION}, {Keywords::GREATER, Tokens::GREATER}, {Keywords::LESSER, Tokens::LESSER},
 			{Keywords::COLON, Tokens::COLON}, {Keywords::LBRACKET, Tokens::LBRACKET}, {Keywords::RBRACKET, Tokens::RBRACKET}, {Keywords::LSQUARE, Tokens::LSQUARE}, 
-			{Keywords::RSQUARE, Tokens::RSQUARE}, {Keywords::COMMA, Tokens::COMMA}};
+			{Keywords::RSQUARE, Tokens::RSQUARE}, {Keywords::COMMA, Tokens::COMMA}, {Keywords::ARRAY, Tokens::ARRAY}, {Keywords::OF, Tokens::OF}};
 		std::string sourceFile;
 		std::string currentLine;
 		std::vector<std::string> sourceFileLines;

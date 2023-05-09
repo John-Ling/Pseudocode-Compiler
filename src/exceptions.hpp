@@ -18,7 +18,8 @@ class Error
 class Generic_Error: public Error
 {
     public:
-        Generic_Error(void);
+        std::string errorMessage;
+        Generic_Error(std::string errorMessage);
         void display_problem(void);
 };
 

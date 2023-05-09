@@ -16,6 +16,7 @@ int Compiler::compile(void)
     {
         return 1;
     }
+    
     // Parsing
     Parser parser(lexer.tokens);
     std::cout << "Parsing and Building AST\n";

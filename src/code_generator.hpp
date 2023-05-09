@@ -25,7 +25,8 @@ class Code_Generator
         {AST_Node_Names::IDENTIFIER, &Code_Generator::identifier}, {AST_Node_Names::DECLARATION, &Code_Generator::variable_declaration}, 
         {AST_Node_Names::ASSIGNMENT, &Code_Generator::variable_assignment}, {AST_Node_Names::OUTPUT, &Code_Generator::output}, 
         {AST_Node_Names::INPUT, &Code_Generator::input}, {AST_Node_Names::BINARY_EXPRESSION, &Code_Generator::binary_expression}, {AST_Node_Names::BRACKETED_EXPRESSION, &Code_Generator::bracketed_expression},
-        {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}};
+        {AST_Node_Names::UNARY_EXPRESSION, &Code_Generator::unary_expression}, {AST_Node_Names::FUNCTION_CALL, &Code_Generator::function_call}, {AST_Node_Names::ARRAY_ASSIGNMENT, &Code_Generator::array_assignment},
+        {AST_Node_Names::ARRAY_DECLARATION, &Code_Generator::array_declaration}, {AST_Node_Names::ARRAY_EXPRESSION}, &Code_Generator::array_expression};
         std::string examine(Node* node);
         std::string convert_operator(Token token);
         std::string function(Node* node);
@@ -43,6 +44,9 @@ class Code_Generator
         std::string variable_assignment(Node* node);
         std::string output(Node* node);
         std::string input(Node* node);
+        std::string array_expression(Node* node);
+        std::string array_declaration(Node* node);
+        std::string array_assignment(Node* node);
         std::string bracketed_expression(Node* node);
         std::string binary_expression(Node* node);
         std::string unary_expression(Node* node);

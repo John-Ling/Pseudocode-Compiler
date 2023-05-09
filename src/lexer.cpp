@@ -41,6 +41,11 @@ int Lexer::generate_tokens(void)
     // add final EOF token
     Token token(Tokens::END_OF_FILE, Keywords::END_OF_FILE);
     this->tokens.push_back(token);
+
+    for (unsigned int i = 0; i < this->tokens.size(); i++)
+    {
+        std::cout << this->tokens[i].type << ' ' << this->tokens[i].value << '\n';
+    }
     return 0;
 }
 

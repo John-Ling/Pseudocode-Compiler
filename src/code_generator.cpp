@@ -146,7 +146,7 @@ std::string Code_Generator::convert_operator(Token token)
 {
     static std::unordered_map<std::string, std::string> operatorMap = {
         {Tokens::MOD, "%"}, {Tokens::NOT, "not "}, {Tokens::EQUAL, "=="}, 
-        {Tokens::NOT_EQUAL, "!="}, {Tokens::AND, " and "}, {Tokens::OR, " or "}, {Tokens::ASSIGNMENT, "="}
+        {Tokens::NOT_EQUAL, "!="}, {Tokens::AND, " and "}, {Tokens::OR, " or "}, {Tokens::ASSIGNMENT, "="}, {Tokens::MOD, "%"}
     };
 
     if (operatorMap.count(token.type))
@@ -265,12 +265,68 @@ std::string Code_Generator::variable_assignment(Node* node)
     Variable_Assignment* convertedNode = static_cast<Variable_Assignment*>(node);
     Identifier* variable = convertedNode->get_identifier();
     Node* expression = convertedNode->get_expression();
-    std::string generated = variable->get_variable_name() + " = " + examine(expression);
+    std::string generated = variable->get_variable_name() + '=' + examine(expression);
 
     delete variable;
     delete convertedNode;
     return generated;
 }
+
+std::string Code_Generator::array_assignment(Node* node)
+{
+    Array_Assignment* convertedNode = static_cast<Array_Assignment*>(node);
+    Identifier* variable = convertedNode->get_identifier();
+    std::vector<Node*> indexExpressions = convertedNode->get_index_expressions();
+    Node* expression = convertedNode->get_expression();
+    
+    std::string generated = variable->get_variable_name();
+    for (unsigned int i = 0; i < indexExpressions.size(); i++)
+    {
+        generated += '[' + examine(indexExpressions[i]) + ']';
+    }
+    generated += '=' + examine(expression);
+    return generated;
+}
+
+std::string Code_Generator::array_declaration(Node* node)
+{
+    std::string generated = "(";
+    Array* convertedNode = static_cast<Array*>(node);
+    std::vector<Literal*> lowerBounds = convertedNode->get_lower_bounds();
+    std::vector<Literal*> upperBounds = convertedNode->get_upper_bounds();
+    
+    std::vector<int> elementCounts; // number of elements in the array or number of elements per element in a 2d array
+    for (unsigned int i = 0; i < upperBounds.size(); i++)
+    {
+        elementCounts.push_back(stoi(upperBounds[i]->get_value()));
+    }
+
+    // create either a 1 or 2 dimensional array
+    std::string buffer = "(";
+    for (int i = 0; i < elementCounts[0]; i++)
+    {
+        buffer += '\0,';
+    }
+    buffer.pop_back();
+    buffer += ')';
+
+    if (elementCounts.size() > 1)
+    {
+        for (int i = 0; i < elementCounts[1]; i++)
+        {
+            generated += buffer + ',';
+        }
+        generated.pop_back();
+    }
+    else
+    {
+        generated = buffer;
+    }
+    generated += ')';
+    return generated;
+}
+
+
 
 std::string Code_Generator::output(Node* node)
 {

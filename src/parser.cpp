@@ -196,7 +196,7 @@ Node* Parser::primitive_literal(void)
             return new Literal(this->tokens[this->pointer]);
         }
     }
-    throw Generic_Error();
+    throw Generic_Error("Provided token is not a literal.");
 }
 
 Node* Parser::primitive_type(void)
@@ -209,23 +209,43 @@ Node* Parser::primitive_type(void)
             return new Primitive(this->tokens[this->pointer]);
         }
     }
-    throw Generic_Error();
+    throw Generic_Error("Provided token is not a primitive. ");
 }
 
 Node* Parser::identifier_(void)
 {
+    Node* identifier = new Identifier(this->tokens[this->pointer]);
     if (peek(Tokens::ASSIGNMENT)) // try form variable assignment node
     {
-        Node* identifier = new Identifier(this->tokens[this->pointer]);
         double_advance();
         Node* assignmentExpression = expression();
         return new Variable_Assignment(identifier, assignmentExpression);
     }
+    else if (peek(Tokens::LSQUARE)) // Attempt to form array assignment node
+    {
+        std::vector<Node*> indexExpressions;
+        double_advance();
+        int count = 0;
+
+        // Loop stops when there are more than two indexes involved or if a [RSQUARE] tokens is reached and there is not [LSQUARE] token next
+        while (count <= 2 || (!compare(Tokens::RSQUARE) && peek(Tokens::LSQUARE))) 
+        {
+            count++;
+            indexExpressions.push_back(expression());
+            advance();
+        }
+
+        advance();
+        match(Tokens::ASSIGNMENT);
+        advance();
+        Node* assignmentExpression = expression();
+        return new Array_Assignment(identifier, assignmentExpression, indexExpressions);
+    }
     else if (peek(Tokens::END_OF_LINE))
     {
-        return new Identifier(this->tokens[this->pointer]);
+        return identifier;
     }
-    throw Generic_Error();
+    throw Generic_Error("Identifier is not alone or part of an assignment expression.");
 }
 
 // <variable-declaration> ::= [DECLARE] [IDENTIFIER] : <primitive-type>
@@ -233,15 +253,61 @@ Node* Parser::variable_declaration(void)
 {    
     match(Tokens::IDENTIFIER);
     Node* identifier = new Identifier(this->tokens[this->pointer]);
+    Node* type = NULL;
+
+    std::vector<Literal*> lowerBounds; // array related details
+    std::vector<Literal*> upperBounds;
+    bool array = false;
+
     advance();
     match(Tokens::COLON);
     advance();
 
-    Node* primitive = primitive_type();
+    if (compare(Tokens::ARRAY)) // attempt to create an array node
+    {
+        array = true;        
+        unsigned int count = 1;
+
+        advance();
+        match(Tokens::LSQUARE);
+        advance();
+
+        while (count <= 2 && !compare(Tokens::RSQUARE))
+        {
+            Literal* lowerBound = static_cast<Literal*>(primitive_literal());
+            lowerBounds.push_back(lowerBound);
+            advance();
+            match(Tokens::COLON);
+            Literal* upperBound = static_cast<Literal*>(primitive_literal());
+            upperBounds.push_back(upperBound);
+
+            if (!peek(Tokens::RSQUARE))
+            {
+                advance();
+                match(Tokens::COMMA);
+            }
+            advance();
+            count++;
+        }
+
+        advance();
+        match(Tokens::OF);
+        advance();
+    }
+
+    type = primitive_type(); // get type of either identifier or array
 
     // add name and type to symbolTable
-    this->symbolTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(primitive)->get_type();
-    return new Variable_Declaration(identifier, primitive);
+    this->symbolTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(type)->get_type();
+
+    if (array)
+    {
+        return new Array(type, lowerBounds, upperBounds);
+    }
+    else
+    {
+        return new Variable_Declaration(identifier, type);
+    }
 }
 
 // <output> ::= [OUTPUT] <expression> (, <expression>)*
@@ -486,7 +552,7 @@ Node* Parser::term(void)
 Node* Parser::factor(void)
 {
     Node* expression = unary();
-    while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION))
+    while (peek(Tokens::MULTIPLICATION) || peek(Tokens::DIVISION) || peek(Tokens::MOD))
     {
         advance();
         Token operation = this->tokens[this->pointer];
@@ -521,6 +587,21 @@ Node* Parser::primary(void)
             double_advance();
             Node* arguments = function_call_arguments();
             return new Function_Call(identifier, arguments);
+        }
+        else if (peek(Tokens::LSQUARE))
+        {
+            std::vector<Node*> indexExpressions;
+            double_advance();
+            int count = 1;
+            
+            while (count <= 2 || (!compare(Tokens::RSQUARE) && peek(Tokens::LSQUARE)))
+            {
+                Node* indexExpression = expression();
+                indexExpressions.push_back(indexExpression);
+                advance();
+                count++;
+            }
+            return new Array_Expression(indexExpressions);
         }
 
         return identifier; // return standalone identifier
