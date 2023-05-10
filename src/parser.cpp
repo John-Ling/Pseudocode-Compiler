@@ -228,11 +228,20 @@ Node* Parser::identifier_(void)
         int count = 0;
 
         // Loop stops when there are more than two indexes involved or if a [RSQUARE] tokens is reached and there is not [LSQUARE] token next
-        while (count <= 2 || (!compare(Tokens::RSQUARE) && peek(Tokens::LSQUARE))) 
+        while (!compare(Tokens::RSQUARE) || peek(Tokens::LSQUARE)) 
         {
+            if (peek(Tokens::LSQUARE))
+            {
+                double_advance();
+            }
             count++;
             indexExpressions.push_back(expression());
             advance();
+        }
+        
+        if (count > 2)
+        {
+            throw Generic_Error("Arrays only support up to 2 index operations.");
         }
 
         advance();
@@ -253,7 +262,6 @@ Node* Parser::variable_declaration(void)
 {    
     match(Tokens::IDENTIFIER);
     Node* identifier = new Identifier(this->tokens[this->pointer]);
-    Node* type = NULL;
 
     std::vector<Literal*> lowerBounds; // array related details
     std::vector<Literal*> upperBounds;
@@ -278,6 +286,7 @@ Node* Parser::variable_declaration(void)
             lowerBounds.push_back(lowerBound);
             advance();
             match(Tokens::COLON);
+            advance();
             Literal* upperBound = static_cast<Literal*>(primitive_literal());
             upperBounds.push_back(upperBound);
 
@@ -289,20 +298,18 @@ Node* Parser::variable_declaration(void)
             advance();
             count++;
         }
-
         advance();
         match(Tokens::OF);
         advance();
     }
 
-    type = primitive_type(); // get type of either identifier or array
-
+    Node* type = primitive_type(); // get type of either identifier or array
     // add name and type to symbolTable
     this->symbolTable[static_cast<Identifier*>(identifier)->get_variable_name()] = static_cast<Primitive*>(type)->get_type();
 
     if (array)
     {
-        return new Array(type, lowerBounds, upperBounds);
+        return new Array(identifier, type, lowerBounds, upperBounds);
     }
     else
     {
@@ -592,16 +599,26 @@ Node* Parser::primary(void)
         {
             std::vector<Node*> indexExpressions;
             double_advance();
-            int count = 1;
-            
-            while (count <= 2 || (!compare(Tokens::RSQUARE) && peek(Tokens::LSQUARE)))
+            int count = 0;
+
+            while (!compare(Tokens::RSQUARE) || peek(Tokens::LSQUARE))
             {
+                if (peek(Tokens::LSQUARE))
+                {
+                    double_advance();
+                }
                 Node* indexExpression = expression();
                 indexExpressions.push_back(indexExpression);
                 advance();
                 count++;
             }
-            return new Array_Expression(indexExpressions);
+
+            if (count > 2)
+            {
+                throw Generic_Error("Arrays only support up to 2 index operations.");
+            }
+
+            return new Array_Expression(identifier, indexExpressions);
         }
 
         return identifier; // return standalone identifier

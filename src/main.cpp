@@ -10,7 +10,7 @@
 // Lexer: Done
 // Parser: Done
 // Code generation: Done
-// Extra thing: Semantic Analysis + Extra pseudocode features such as arrays, file handling etc
+// Extra things to add: file handling
 
 int main(int argc, char* argv[])
 {

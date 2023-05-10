@@ -285,30 +285,37 @@ std::string Code_Generator::array_assignment(Node* node)
         generated += '[' + examine(indexExpressions[i]) + ']';
     }
     generated += '=' + examine(expression);
+    
+    delete variable;
+    delete convertedNode;
     return generated;
 }
 
 std::string Code_Generator::array_declaration(Node* node)
 {
-    std::string generated = "(";
     Array* convertedNode = static_cast<Array*>(node);
+    Identifier* identifier = convertedNode->get_identifier();
     std::vector<Literal*> lowerBounds = convertedNode->get_lower_bounds();
     std::vector<Literal*> upperBounds = convertedNode->get_upper_bounds();
+
+    std::string generated = identifier->get_variable_name() + '=';
     
     std::vector<int> elementCounts; // number of elements in the array or number of elements per element in a 2d array
     for (unsigned int i = 0; i < upperBounds.size(); i++)
     {
         elementCounts.push_back(stoi(upperBounds[i]->get_value()));
+        delete upperBounds[i];
+        delete lowerBounds[i];
     }
 
     // create either a 1 or 2 dimensional array
-    std::string buffer = "(";
+    std::string buffer = "[";
     for (int i = 0; i < elementCounts[0]; i++)
     {
-        buffer += '\0,';
+        buffer += "None,";
     }
     buffer.pop_back();
-    buffer += ')';
+    buffer += ']';
 
     if (elementCounts.size() > 1)
     {
@@ -320,13 +327,32 @@ std::string Code_Generator::array_declaration(Node* node)
     }
     else
     {
-        generated = buffer;
+        generated += buffer;
     }
-    generated += ')';
+
+    delete identifier;
+    delete convertedNode->get_type();
+    delete convertedNode;
     return generated;
 }
 
+std::string Code_Generator::array_expression(Node* node)
+{
+    Array_Expression* convertedNode = static_cast<Array_Expression*>(node);
+    Identifier* variable = convertedNode->get_identifier();
+    std::vector<Node*> indexExpressions = convertedNode->get_index_expressions();
 
+    std::string generated = variable->get_variable_name();
+    for (unsigned int i = 0; i < indexExpressions.size(); i++)
+    {
+        generated += '[' + examine(indexExpressions[i]) + ']';
+    }
+
+    delete variable;
+    delete convertedNode;
+
+    return generated;
+}
 
 std::string Code_Generator::output(Node* node)
 {

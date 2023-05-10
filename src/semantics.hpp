@@ -28,7 +28,6 @@ class Semantic_Analyser
         void set_state(std::string state);
         std::string typecheck_expression(Node* node);
         Node* determine_expression_type(std::vector<std::string> types);
-        void match_types(std::vector<std::string> types);
         void variable_assignment(Node* node);
         void variable_declaration(Node* node);
         void function(Node* node);
