@@ -1,0 +1,34 @@
+DECLARE Arr : ARRAY[1:5] OF INTEGER
+Arr[0] <-- 23
+Arr[1] <-- 765
+Arr[2] <-- 43
+Arr[3] <-- 98
+Arr[4] <-- 12
+
+OUTPUT Arr
+
+DECLARE Swaps : BOOLEAN
+DECLARE Upper : INTEGER
+DECLARE Current : INTEGER
+DECLARE Previous : INTEGER
+DECLARE Tmp : INTEGER
+DECLARE Index : INTEGER
+
+Swaps <-- TRUE
+Upper <-- 5
+
+WHILE Swaps <> FALSE
+	Swaps <-- FALSE
+	FOR Index <-- 1 TO Upper
+		Current <-- Arr[Index]
+		Previous <-- Arr[Index - 1]
+		IF Current < Previous THEN
+			Tmp <-- Current
+			Arr[Index] <-- Previous
+			Arr[Index - 1] <-- Tmp
+			Swaps <-- TRUE
+		ENDIF
+	NEXT Index
+	Upper <-- Upper - 1
+ENDWHILE
+OUTPUT Arr
