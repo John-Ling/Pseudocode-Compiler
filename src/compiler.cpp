@@ -1,7 +1,5 @@
 #include "compiler.hpp"
 
-// branch test
-// second branch test
 Compiler::Compiler(std::string filename)
 {
     this->sourceFile = filename;
